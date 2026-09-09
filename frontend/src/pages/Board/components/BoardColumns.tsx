@@ -1,9 +1,11 @@
-import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { DndContext, DragOverlay, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core';
 import { createStyles } from 'antd-style';
+import { useState } from 'react';
 import { color, font, fontSize, space } from '../../../theme/tokens';
 import type { BoardColumn as BoardColumnKey } from '../../../types/board';
 import type { BoardState } from '../state/useBoardState';
 import { BoardColumn } from './BoardColumn';
+import { DragPreviewCard } from './DragPreviewCard';
 
 const useStyles = createStyles(() => ({
   sectionHeader: {
@@ -38,10 +40,17 @@ const columns: BoardColumnKey[] = ['backlog', 'today', 'doing', 'done'];
 
 export function BoardColumns({ state }: { state: BoardState }) {
   const { styles } = useStyles();
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const activeCard = state.cards.find((c) => c.id === activeId);
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+  }
 
   function handleDragEnd(event: DragEndEvent) {
     const columnKey = event.over?.id as BoardColumnKey | undefined;
     if (columnKey) state.moveCard(String(event.active.id), columnKey);
+    setActiveId(null);
   }
 
   return (
@@ -50,12 +59,13 @@ export function BoardColumns({ state }: { state: BoardState }) {
         <span className={styles.sectionTitle}>Fluxo diário</span>
         <div className={styles.rule} />
       </div>
-      <DndContext onDragEnd={handleDragEnd}>
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className={styles.grid}>
           {columns.map((columnKey) => (
             <BoardColumn key={columnKey} columnKey={columnKey} state={state} />
           ))}
         </div>
+        <DragOverlay>{activeCard && <DragPreviewCard card={activeCard} />}</DragOverlay>
       </DndContext>
     </section>
   );

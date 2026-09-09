@@ -1,6 +1,6 @@
 # Relatório de verificação
 
-Gerado em 2026-09-09T14:44:43.096Z
+Gerado em 2026-09-09T15:28:34.470Z
 
 **Situação: APROVADO** — 55/55 aprovados
 
@@ -73,11 +73,11 @@ Gerado em 2026-09-09T14:44:43.096Z
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | the displayed total is never negative | 0 |
+| ✅ | the displayed total is never negative | 1 |
 | ✅ | no event has a zero delta | 1 |
 | ✅ | the raw total is always the ledger sum plus the opening balance | 0 |
-| ✅ | applying zero actions never emits an event | 0 |
-| ✅ | the level is always derivable from the displayed total | 0 |
+| ✅ | applying zero actions never emits an event | 1 |
+| ✅ | the level is always derivable from the displayed total | 1 |
 
 ### reducer is pure — 1/1
 

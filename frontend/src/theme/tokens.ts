@@ -170,6 +170,9 @@ export const radius = {
 
 export const shadow = {
   modal: '0 30px 80px rgba(0,0,0,.55)',
+  // Not in the handoff (its DnD is native HTML5, no lift) — added so a
+  // dragged card visually detaches from the column while it follows the cursor.
+  drag: '0 16px 40px rgba(0,0,0,.5)',
 } as const;
 
 export const transition = {
