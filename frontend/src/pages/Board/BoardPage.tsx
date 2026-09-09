@@ -1,7 +1,8 @@
 import { createStyles } from 'antd-style';
 import { color, font, space } from '../../theme/tokens';
-import { useBoardState } from './useBoardState';
-import { FocusHeaderPanel, HeaderGreeting } from './components/Header';
+import { useBoardState } from './state/useBoardState';
+import { HeaderGreeting } from './components/HeaderGreeting';
+import { FocusHeaderPanel } from './components/FocusHeaderPanel';
 import { LevelPanel } from './components/LevelPanel';
 import { StatPanel } from './components/StatPanel';
 import { BoardColumns } from './components/BoardColumns';
@@ -38,7 +39,7 @@ const useStyles = createStyles(() => ({
   },
 }));
 
-/** Fase 1: static UI wired to in-memory mock state — see useBoardState.ts. */
+/** Fase 1: static UI wired to in-memory mock state — see state/useBoardState.ts. */
 export function BoardPage({ name, showGoals = true }: { name?: string; showGoals?: boolean }) {
   const { styles } = useStyles();
   const state = useBoardState();
