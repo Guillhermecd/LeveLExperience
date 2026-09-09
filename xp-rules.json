@@ -1,0 +1,2037 @@
+{
+  "version": 1,
+  "description": "Executable specification of the XP rules. The same table runs in Vitest (frontend reducer) and JUnit (backend service). A divergence between the two sides breaks the test instead of silently awarding the wrong amount.",
+  "constants": {
+    "xpCardByPriority": {
+      "0": 10,
+      "1": 20,
+      "2": 30
+    },
+    "xpGoal": {
+      "week": 60,
+      "month": 120
+    },
+    "xpSubtask": 5,
+    "xpCleanDay": 50,
+    "xpFocusMinimum": 10,
+    "levelCostFormula": "100 + (level - 1) * 60",
+    "ranks": [
+      "Iniciante",
+      "Aprendiz",
+      "Focado",
+      "Constante",
+      "Estrategista",
+      "Disciplinado",
+      "Veterano",
+      "Mestre",
+      "Lenda"
+    ]
+  },
+  "levels": [
+    {
+      "level": 1,
+      "threshold": 0,
+      "cost": 100,
+      "rank": "Iniciante"
+    },
+    {
+      "level": 2,
+      "threshold": 100,
+      "cost": 160,
+      "rank": "Aprendiz"
+    },
+    {
+      "level": 3,
+      "threshold": 260,
+      "cost": 220,
+      "rank": "Focado"
+    },
+    {
+      "level": 4,
+      "threshold": 480,
+      "cost": 280,
+      "rank": "Constante"
+    },
+    {
+      "level": 5,
+      "threshold": 760,
+      "cost": 340,
+      "rank": "Estrategista"
+    },
+    {
+      "level": 6,
+      "threshold": 1100,
+      "cost": 400,
+      "rank": "Disciplinado"
+    },
+    {
+      "level": 7,
+      "threshold": 1500,
+      "cost": 460,
+      "rank": "Veterano"
+    },
+    {
+      "level": 8,
+      "threshold": 1960,
+      "cost": 520,
+      "rank": "Mestre"
+    },
+    {
+      "level": 9,
+      "threshold": 2480,
+      "cost": 580,
+      "rank": "Lenda"
+    },
+    {
+      "level": 10,
+      "threshold": 3060,
+      "cost": 640,
+      "rank": "Lenda"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "card-done-low",
+      "note": "A low-priority card moved to Done awards 10 XP.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          },
+          {
+            "id": "c2",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 10,
+        "xpTotal": 10,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 10,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 10,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "card-done-medium",
+      "note": "A medium-priority card moved to Done awards 20 XP.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 1
+          },
+          {
+            "id": "c2",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 20,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 20,
+        "xpTotal": 20,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 20,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 20,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "card-done-high",
+      "note": "A high-priority card moved to Done awards 30 XP.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 2
+          },
+          {
+            "id": "c2",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 30,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 30,
+        "xpTotal": 30,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 30,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 30,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "card-undone",
+      "note": "Moving a card out of Done reverses the same amount.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "done",
+            "priority": 2
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 30,
+          "streak": 1,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 30,
+          "dayDone": 1
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "today"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_undone",
+            "delta": -30,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 0,
+        "xpTotal": 0,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 0,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 0,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "card-move-not-touching-done",
+      "note": "Moving between columns that do not involve Done emits no event.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "backlog",
+            "priority": 1
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "today"
+        }
+      ],
+      "expect": {
+        "events": [],
+        "rawTotal": 0,
+        "xpTotal": 0,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 0,
+        "xpForNextLevel": 100,
+        "streak": 0,
+        "dayXp": 0,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "card-reorder-same-column",
+      "note": "Reordering within the same column awards no XP.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "done",
+            "priority": 1
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 20,
+          "streak": 0,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 20,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [],
+        "rawTotal": 20,
+        "xpTotal": 20,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 20,
+        "xpForNextLevel": 100,
+        "streak": 0,
+        "dayXp": 20,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "card-done-redone",
+      "note": "Complete, reopen and complete again awards twice: the cycle is legitimate, which is why the idempotency key comes from the client per action.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 1
+          },
+          {
+            "id": "c2",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        },
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "today"
+        },
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 20,
+            "refId": "c1"
+          },
+          {
+            "reason": "card_undone",
+            "delta": -20,
+            "refId": "c1"
+          },
+          {
+            "reason": "card_done",
+            "delta": 20,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 20,
+        "xpTotal": 20,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 20,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 20,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "clean-day-awarded",
+      "note": "Last card in Today completed: +50 on top of the card XP.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 0
+          },
+          {
+            "id": "c2",
+            "column": "backlog",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          },
+          {
+            "reason": "clean_day",
+            "delta": 50,
+            "refId": null
+          }
+        ],
+        "rawTotal": 60,
+        "xpTotal": 60,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 60,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 60,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "clean-day-once-per-day",
+      "note": "A second clearing on the same day is not awarded again.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 60,
+          "streak": 0,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": "2026-09-02",
+          "dayXp": 60,
+          "dayDone": 1
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 70,
+        "xpTotal": 70,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 70,
+        "xpForNextLevel": 100,
+        "streak": 0,
+        "dayXp": 70,
+        "dayDone": 2
+      }
+    },
+    {
+      "id": "clean-day-requires-empty-column",
+      "note": "A card remains in Today: no bonus.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 0
+          },
+          {
+            "id": "c2",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 10,
+        "xpTotal": 10,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 10,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 10,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "clean-day-requires-completion",
+      "note": "Clearing Today by moving to Backlog awards no bonus.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "backlog"
+        }
+      ],
+      "expect": {
+        "events": [],
+        "rawTotal": 0,
+        "xpTotal": 0,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 0,
+        "xpForNextLevel": 100,
+        "streak": 0,
+        "dayXp": 0,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "clean-day-card-from-other-column",
+      "note": "Completing a card that was not in Today awards no bonus, even if Today is empty.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 1
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 20,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 20,
+        "xpTotal": 20,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 20,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 20,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "goal-week-done",
+      "note": "Weekly goal completed: +60.",
+      "given": {
+        "cards": [],
+        "goals": [
+          {
+            "id": "g1",
+            "scope": "week",
+            "done": false
+          }
+        ],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "toggle_goal",
+          "goalId": "g1",
+          "done": true
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "goal_done",
+            "delta": 60,
+            "refId": "g1"
+          }
+        ],
+        "rawTotal": 60,
+        "xpTotal": 60,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 60,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 60,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "goal-month-done",
+      "note": "Monthly goal completed: +120.",
+      "given": {
+        "cards": [],
+        "goals": [
+          {
+            "id": "g1",
+            "scope": "month",
+            "done": false
+          }
+        ],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "toggle_goal",
+          "goalId": "g1",
+          "done": true
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "goal_done",
+            "delta": 120,
+            "refId": "g1"
+          }
+        ],
+        "rawTotal": 120,
+        "xpTotal": 120,
+        "level": 2,
+        "rank": "Aprendiz",
+        "xpIntoLevel": 20,
+        "xpForNextLevel": 160,
+        "streak": 1,
+        "dayXp": 120,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "goal-reopen",
+      "note": "Reopening a monthly goal reverses 120.",
+      "given": {
+        "cards": [],
+        "goals": [
+          {
+            "id": "g1",
+            "scope": "month",
+            "done": true
+          }
+        ],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 120,
+          "streak": 1,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 120,
+          "dayDone": 1
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "toggle_goal",
+          "goalId": "g1",
+          "done": false
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "goal_undone",
+            "delta": -120,
+            "refId": "g1"
+          }
+        ],
+        "rawTotal": 0,
+        "xpTotal": 0,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 0,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 0,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "goal-toggle-is-idempotent",
+      "note": "Marking an already completed goal emits no event.",
+      "given": {
+        "cards": [],
+        "goals": [
+          {
+            "id": "g1",
+            "scope": "week",
+            "done": true
+          }
+        ],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 60,
+          "streak": 0,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 60,
+          "dayDone": 1
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "toggle_goal",
+          "goalId": "g1",
+          "done": true
+        }
+      ],
+      "expect": {
+        "events": [],
+        "rawTotal": 60,
+        "xpTotal": 60,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 60,
+        "xpForNextLevel": 100,
+        "streak": 0,
+        "dayXp": 60,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "subtask-done",
+      "note": "Checking a subtask: +5.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [
+          {
+            "id": "s1",
+            "cardId": "c1",
+            "done": false
+          }
+        ],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "toggle_subtask",
+          "subtaskId": "s1",
+          "done": true
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "subtask_done",
+            "delta": 5,
+            "refId": "s1"
+          }
+        ],
+        "rawTotal": 5,
+        "xpTotal": 5,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 5,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 5,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "subtask-undone",
+      "note": "Unchecking a subtask does NOT reverse.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [
+          {
+            "id": "s1",
+            "cardId": "c1",
+            "done": true
+          }
+        ],
+        "stats": {
+          "rawTotal": 5,
+          "streak": 1,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 5,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "toggle_subtask",
+          "subtaskId": "s1",
+          "done": false
+        }
+      ],
+      "expect": {
+        "events": [],
+        "rawTotal": 5,
+        "xpTotal": 5,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 5,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 5,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "subtask-not-counted-as-completed",
+      "note": "A subtask awards XP but does not increment the daily completed counter.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [
+          {
+            "id": "s1",
+            "cardId": "c1",
+            "done": false
+          },
+          {
+            "id": "s2",
+            "cardId": "c1",
+            "done": false
+          }
+        ],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "toggle_subtask",
+          "subtaskId": "s1",
+          "done": true
+        },
+        {
+          "type": "toggle_subtask",
+          "subtaskId": "s2",
+          "done": true
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "subtask_done",
+            "delta": 5,
+            "refId": "s1"
+          },
+          {
+            "reason": "subtask_done",
+            "delta": 5,
+            "refId": "s2"
+          }
+        ],
+        "rawTotal": 10,
+        "xpTotal": 10,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 10,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 10,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "focus-full-session",
+      "note": "A completed 25-minute session awards 25 XP.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "finish_focus",
+          "cardId": "c1",
+          "plannedMinutes": 25,
+          "elapsedMinutes": 25,
+          "outcome": "completed"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "focus_session",
+            "delta": 25,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 25,
+        "xpTotal": 25,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 25,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 25,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "focus-minimum-award",
+      "note": "A 5-minute session: floor of 10 XP.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "finish_focus",
+          "cardId": "c1",
+          "plannedMinutes": 5,
+          "elapsedMinutes": 5,
+          "outcome": "completed"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "focus_session",
+            "delta": 10,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 10,
+        "xpTotal": 10,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 10,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 10,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "focus-ended-early",
+      "note": "Ending early awards the server-measured elapsed time, not the planned time.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "finish_focus",
+          "cardId": "c1",
+          "plannedMinutes": 60,
+          "elapsedMinutes": 18,
+          "outcome": "completed"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "focus_session",
+            "delta": 18,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 18,
+        "xpTotal": 18,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 18,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 18,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "focus-capped-at-planned",
+      "note": "Tab left open: the award never exceeds the planned time.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "finish_focus",
+          "cardId": "c1",
+          "plannedMinutes": 25,
+          "elapsedMinutes": 400,
+          "outcome": "completed"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "focus_session",
+            "delta": 25,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 25,
+        "xpTotal": 25,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 25,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 25,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "focus-abandoned",
+      "note": "Ending without completing awards nothing.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "finish_focus",
+          "cardId": "c1",
+          "plannedMinutes": 25,
+          "elapsedMinutes": 10,
+          "outcome": "abandoned"
+        }
+      ],
+      "expect": {
+        "events": [],
+        "rawTotal": 0,
+        "xpTotal": 0,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 0,
+        "xpForNextLevel": 100,
+        "streak": 0,
+        "dayXp": 0,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "total-never-negative",
+      "note": "A reversal larger than the balance: the displayed total floors at zero.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "done",
+            "priority": 2
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 10,
+          "streak": 1,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 10,
+          "dayDone": 1
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "today"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_undone",
+            "delta": -30,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": -20,
+        "xpTotal": 0,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 0,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": -20,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "ledger-keeps-real-delta",
+      "note": "The ledger keeps the real delta (-30) even with the displayed total at zero; awarding 20 afterwards leaves the display at zero, not 20.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "done",
+            "priority": 2
+          },
+          {
+            "id": "c2",
+            "column": "today",
+            "priority": 1
+          },
+          {
+            "id": "c3",
+            "column": "today",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 10,
+          "streak": 1,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 10,
+          "dayDone": 1
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "today"
+        },
+        {
+          "type": "move_card",
+          "cardId": "c2",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_undone",
+            "delta": -30,
+            "refId": "c1"
+          },
+          {
+            "reason": "card_done",
+            "delta": 20,
+            "refId": "c2"
+          }
+        ],
+        "rawTotal": 0,
+        "xpTotal": 0,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 0,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 0,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "streak-first-day",
+      "note": "No history: streak becomes 1.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 0,
+          "streak": 0,
+          "lastXpDay": null,
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 10,
+        "xpTotal": 10,
+        "level": 1,
+        "rank": "Iniciante",
+        "xpIntoLevel": 10,
+        "xpForNextLevel": 100,
+        "streak": 1,
+        "dayXp": 10,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "streak-continues",
+      "note": "Last XP was yesterday: streak increments.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 300,
+          "streak": 3,
+          "lastXpDay": "2026-09-01",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 310,
+        "xpTotal": 310,
+        "level": 3,
+        "rank": "Focado",
+        "xpIntoLevel": 50,
+        "xpForNextLevel": 220,
+        "streak": 4,
+        "dayXp": 10,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "streak-resets-after-gap",
+      "note": "Last XP was 4 days ago: streak restarts at 1.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 800,
+          "streak": 7,
+          "lastXpDay": "2026-08-29",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 810,
+        "xpTotal": 810,
+        "level": 5,
+        "rank": "Estrategista",
+        "xpIntoLevel": 50,
+        "xpForNextLevel": 340,
+        "streak": 1,
+        "dayXp": 10,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "streak-once-per-day",
+      "note": "A second XP on the same day does not increment the streak again.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          },
+          {
+            "id": "c2",
+            "column": "doing",
+            "priority": 1
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 200,
+          "streak": 2,
+          "lastXpDay": "2026-09-01",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        },
+        {
+          "type": "move_card",
+          "cardId": "c2",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          },
+          {
+            "reason": "card_done",
+            "delta": 20,
+            "refId": "c2"
+          }
+        ],
+        "rawTotal": 230,
+        "xpTotal": 230,
+        "level": 2,
+        "rank": "Aprendiz",
+        "xpIntoLevel": 130,
+        "xpForNextLevel": 160,
+        "streak": 3,
+        "dayXp": 30,
+        "dayDone": 2
+      }
+    },
+    {
+      "id": "streak-not-started-by-reversal",
+      "note": "A reversal is negative XP: it does not start a streak. Shown as zero because the last positive XP was 4 days ago.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "done",
+            "priority": 1
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 200,
+          "streak": 0,
+          "lastXpDay": "2026-08-29",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "today"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_undone",
+            "delta": -20,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 180,
+        "xpTotal": 180,
+        "level": 2,
+        "rank": "Aprendiz",
+        "xpIntoLevel": 80,
+        "xpForNextLevel": 160,
+        "streak": 0,
+        "dayXp": -20,
+        "dayDone": -1
+      }
+    },
+    {
+      "id": "streak-shown-zero-after-gap",
+      "note": "No activity today or yesterday: the displayed streak is zero even though the stored value is 5.",
+      "given": {
+        "cards": [],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 900,
+          "streak": 5,
+          "lastXpDay": "2026-08-25",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [],
+      "expect": {
+        "events": [],
+        "rawTotal": 900,
+        "xpTotal": 900,
+        "level": 5,
+        "rank": "Estrategista",
+        "xpIntoLevel": 140,
+        "xpForNextLevel": 340,
+        "streak": 0,
+        "dayXp": 0,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "level-up-to-2",
+      "note": "99 -> 109 XP crosses the level 2 threshold (100).",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 0
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 99,
+          "streak": 1,
+          "lastXpDay": "2026-09-01",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 10,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 109,
+        "xpTotal": 109,
+        "level": 2,
+        "rank": "Aprendiz",
+        "xpIntoLevel": 9,
+        "xpForNextLevel": 160,
+        "streak": 2,
+        "dayXp": 10,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "level-3-threshold",
+      "note": "260 XP is the level 3 threshold.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "doing",
+            "priority": 2
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 230,
+          "streak": 1,
+          "lastXpDay": "2026-09-01",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_done",
+            "delta": 30,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 260,
+        "xpTotal": 260,
+        "level": 3,
+        "rank": "Focado",
+        "xpIntoLevel": 0,
+        "xpForNextLevel": 220,
+        "streak": 2,
+        "dayXp": 30,
+        "dayDone": 1
+      }
+    },
+    {
+      "id": "level-drops-on-reversal",
+      "note": "A reversal can demote the level: level is derived from the total, not stored.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "done",
+            "priority": 2
+          }
+        ],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 270,
+          "streak": 1,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 30,
+          "dayDone": 1
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "today"
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "card_undone",
+            "delta": -30,
+            "refId": "c1"
+          }
+        ],
+        "rawTotal": 240,
+        "xpTotal": 240,
+        "level": 2,
+        "rank": "Aprendiz",
+        "xpIntoLevel": 140,
+        "xpForNextLevel": 160,
+        "streak": 1,
+        "dayXp": 0,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "rank-legend-caps",
+      "note": "Level 9 and above stays Lenda.",
+      "given": {
+        "cards": [],
+        "goals": [],
+        "subtasks": [],
+        "stats": {
+          "rawTotal": 5000,
+          "streak": 1,
+          "lastXpDay": "2026-09-02",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [],
+      "expect": {
+        "events": [],
+        "rawTotal": 5000,
+        "xpTotal": 5000,
+        "level": 12,
+        "rank": "Lenda",
+        "xpIntoLevel": 600,
+        "xpForNextLevel": 760,
+        "streak": 1,
+        "dayXp": 0,
+        "dayDone": 0
+      }
+    },
+    {
+      "id": "full-day-combined",
+      "note": "Realistic sequence: two subtasks, a focus session, completing the last card in Today with the bonus, and a weekly goal.",
+      "given": {
+        "cards": [
+          {
+            "id": "c1",
+            "column": "today",
+            "priority": 2
+          },
+          {
+            "id": "c2",
+            "column": "backlog",
+            "priority": 0
+          }
+        ],
+        "goals": [
+          {
+            "id": "g1",
+            "scope": "week",
+            "done": false
+          }
+        ],
+        "subtasks": [
+          {
+            "id": "s1",
+            "cardId": "c1",
+            "done": false
+          },
+          {
+            "id": "s2",
+            "cardId": "c1",
+            "done": false
+          }
+        ],
+        "stats": {
+          "rawTotal": 420,
+          "streak": 4,
+          "lastXpDay": "2026-09-01",
+          "cleanDayPaid": null,
+          "dayXp": 0,
+          "dayDone": 0
+        },
+        "today": "2026-09-02"
+      },
+      "actions": [
+        {
+          "type": "toggle_subtask",
+          "subtaskId": "s1",
+          "done": true
+        },
+        {
+          "type": "toggle_subtask",
+          "subtaskId": "s2",
+          "done": true
+        },
+        {
+          "type": "finish_focus",
+          "cardId": "c1",
+          "plannedMinutes": 25,
+          "elapsedMinutes": 25,
+          "outcome": "completed"
+        },
+        {
+          "type": "move_card",
+          "cardId": "c1",
+          "to": "done"
+        },
+        {
+          "type": "toggle_goal",
+          "goalId": "g1",
+          "done": true
+        }
+      ],
+      "expect": {
+        "events": [
+          {
+            "reason": "subtask_done",
+            "delta": 5,
+            "refId": "s1"
+          },
+          {
+            "reason": "subtask_done",
+            "delta": 5,
+            "refId": "s2"
+          },
+          {
+            "reason": "focus_session",
+            "delta": 25,
+            "refId": "c1"
+          },
+          {
+            "reason": "card_done",
+            "delta": 30,
+            "refId": "c1"
+          },
+          {
+            "reason": "clean_day",
+            "delta": 50,
+            "refId": null
+          },
+          {
+            "reason": "goal_done",
+            "delta": 60,
+            "refId": "g1"
+          }
+        ],
+        "rawTotal": 595,
+        "xpTotal": 595,
+        "level": 4,
+        "rank": "Constante",
+        "xpIntoLevel": 115,
+        "xpForNextLevel": 280,
+        "streak": 5,
+        "dayXp": 175,
+        "dayDone": 2
+      }
+    }
+  ]
+}

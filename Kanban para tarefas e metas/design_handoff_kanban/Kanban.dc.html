@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #101117; }
+  * { box-sizing: border-box; }
+  a { color: #c8f169; text-decoration: none; }
+  a:hover { color: #e2ff9c; }
+  ::-webkit-scrollbar { height: 10px; width: 10px; }
+  ::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  textarea, input, button { font-family: inherit; }
+</style>
+</helmet>
+<div style="min-height: 100vh; background: radial-gradient(1200px 600px at 15% -10%, #1b2030 0%, #101117 60%); color: #e8e9ef; font-family: 'IBM Plex Sans', system-ui, sans-serif; padding: 40px 44px 64px;">
+
+  <header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; flex-wrap: wrap; padding-bottom: 28px; border-bottom: 1px solid #23262f;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <span style="font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #7d818f;">{{ dateLabel }}</span>
+      <h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 600; letter-spacing: -0.02em; color: #f4f5f8;">{{ greeting }}</h1>
+    </div>
+    <div style="display: flex; align-items: stretch; gap: 14px; flex-wrap: wrap;">
+      <sc-if value="{{ focusActive }}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 18px; border: 1px solid #3a2f1e; border-radius: 12px; background: linear-gradient(140deg, #241d12 0%, #16181f 70%); min-width: 250px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+            <span style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #d8a45c;">Foco</span>
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; color: #f2c14e;">{{ focusClock }}</span>
+          </div>
+          <span style="font-size: 12.5px; line-height: 1.35; color: #c8cad3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ focusTitle }}</span>
+          <div style="height: 4px; border-radius: 4px; background: #2a2418; overflow: hidden;">
+            <div style="height: 100%; border-radius: 4px; background: #f2c14e; width: {{ focusWidth }};"></div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button onClick="{{ onFocusToggle }}" style="flex: 1; background: #1f2129; border: 1px solid #3a3f4d; border-radius: 8px; padding: 6px 8px; color: #d8dae2; font-size: 12px; cursor: pointer;" style-hover="border-color: #f2c14e; color: #f2c14e;">{{ focusToggleLabel }}</button>
+            <button onClick="{{ onFocusStop }}" style="flex: none; background: transparent; border: 1px solid #33262a; border-radius: 8px; padding: 6px 10px; color: #8d8f99; font-size: 12px; cursor: pointer;" style-hover="border-color: #ff7a5c; color: #ff7a5c;">Encerrar</button>
+          </div>
+        </div>
+      </sc-if>
+      <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px 18px; border: 1px solid #2f3a1e; border-radius: 12px; background: linear-gradient(140deg, #1c2314 0%, #16181f 70%); min-width: 288px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: #c8f169; color: #16200a;">
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; line-height: 1;">{{ level }}</span>
+            <span style="font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.7;">nível</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600; color: #f4f5f8;">{{ rank }}</span>
+            <span style="font-size: 12px; color: #93a86a;">{{ xpLabel }}</span>
+          </div>
+          <sc-if value="{{ hasGain }}" hint-placeholder-val="{{ false }}">
+            <span style="margin-left: auto; flex: none; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; color: #16200a; background: #c8f169; border-radius: 20px; padding: 4px 10px; white-space: nowrap;">{{ gain }}</span>
+          </sc-if>
+        </div>
+        <div style="height: 6px; border-radius: 6px; background: #23281a; overflow: hidden;">
+          <div style="height: 100%; border-radius: 6px; background: linear-gradient(90deg, #8fd13f, #c8f169); transition: width 420ms ease; width: {{ xpWidth }};"></div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 11px; color: #7d818f;">
+          <span>{{ xpTotalLabel }}</span>
+          <span>{{ streakLabel }}</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 20px; border: 1px solid #23262f; border-radius: 12px; background: #16181f; min-width: 124px;">
+        <span style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #7d818f;">Em aberto</span>
+        <span style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600; color: #f4f5f8;">{{ openCount }}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 20px; border: 1px solid #2f3a1e; border-radius: 12px; background: #1a2013; min-width: 124px;">
+        <span style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #93a86a;">Tarefas feitas</span>
+        <span style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600; color: #c8f169;">{{ doneFlow }}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 4px; padding: 14px 20px; border: 1px solid #3d3060; border-radius: 12px; background: #1c1730; min-width: 124px;">
+        <span style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #9f86d6;">Metas batidas</span>
+        <span style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600; color: #b98cff;">{{ doneGoals }}</span>
+      </div>
+    </div>
+  </header>
+
+  <section style="margin-top: 36px;">
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+      <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #9aa0b0;">Fluxo diário</h2>
+      <div style="flex: 1; height: 1px; background: #21242d;"></div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; align-items: start;">
+      <sc-for list="{{ flowColumns }}" as="col" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; gap: 12px; background: #15171e; border: 1px solid #22252e; border-radius: 16px; padding: 16px 14px 14px; min-height: 260px;" onDragOver="{{ col.onDragOver }}" onDrop="{{ col.onDrop }}">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 4px;">
+            <span style="font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.02em; color: #e8e9ef;">{{ col.title }}</span>
+            <span style="font-size: 12px; font-variant-numeric: tabular-nums; color: #6d7180; background: #1c1f27; border-radius: 20px; padding: 3px 9px;">{{ col.count }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <sc-for list="{{ col.cards }}" as="card" hint-placeholder-count="2">
+              <div draggable="{{ true }}" onDragStart="{{ card.onDragStart }}" onDragEnd="{{ card.onDragEnd }}" onDrop="{{ card.onDrop }}" style="position: relative; display: flex; flex-direction: column; gap: 9px; background: #1b1e26; border: 1px solid #272b36; border-radius: 12px; padding: 12px 12px 11px; cursor: grab;" style-hover="border-color: #3a4050; background: #1f232c;">
+                <sc-if value="{{ card.isEditing }}" hint-placeholder-val="{{ false }}">
+                  <textarea value="{{ card.editDraft }}" onChange="{{ card.onEditChange }}" onKeyDown="{{ card.onEditKeyDown }}" onBlur="{{ card.onEditCommit }}" autoFocus="{{ true }}" rows="3" style="width: 100%; resize: vertical; background: #14161c; color: #f1f2f6; border: 1px solid #3c4250; border-radius: 8px; padding: 8px; font-size: 14px; line-height: 1.45; outline: none;"></textarea>
+                </sc-if>
+                <sc-if value="{{ card.isNotEditing }}" hint-placeholder-val="{{ true }}">
+                  <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <button onClick="{{ card.onCyclePriority }}" title="Prioridade" style="position: relative; flex: none; margin-top: 5px; width: 9px; height: 9px; padding: 0; border: none; border-radius: 50%; cursor: pointer; background: #4a505f;" style-hover="transform: scale(1.35);">
+                      <sc-if value="{{ card.isHigh }}" hint-placeholder-val="{{ false }}">
+                        <span style="position: absolute; inset: 0; border-radius: 50%; background: #ff7a5c;"></span>
+                      </sc-if>
+                      <sc-if value="{{ card.isMed }}" hint-placeholder-val="{{ false }}">
+                        <span style="position: absolute; inset: 0; border-radius: 50%; background: #f2c14e;"></span>
+                      </sc-if>
+                    </button>
+                    <div onDoubleClick="{{ card.onStartEdit }}" style="flex: 1; font-size: 14px; line-height: 1.45; color: #dfe1e8; word-break: break-word; text-wrap: pretty;">{{ card.title }}</div>
+                    <button onClick="{{ card.onDelete }}" title="Remover" style="flex: none; border: none; background: transparent; color: #565b6a; font-size: 15px; line-height: 1; padding: 2px 2px; cursor: pointer;" style-hover="color: #ff7a5c;">×</button>
+                  </div>
+                </sc-if>
+
+                <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
+                  <sc-if value="{{ card.tagIs0 }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ card.onCycleTag }}" style="border: 1px solid #24405e; background: #16283b; color: #7fc0ff; border-radius: 20px; padding: 3px 9px; font-size: 11px; cursor: pointer;">Trabalho</button>
+                  </sc-if>
+                  <sc-if value="{{ card.tagIs1 }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ card.onCycleTag }}" style="border: 1px solid #3a4a20; background: #232d14; color: #c8f169; border-radius: 20px; padding: 3px 9px; font-size: 11px; cursor: pointer;">Pessoal</button>
+                  </sc-if>
+                  <sc-if value="{{ card.tagIs2 }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ card.onCycleTag }}" style="border: 1px solid #4d3122; background: #2e1d15; color: #ff9f6c; border-radius: 20px; padding: 3px 9px; font-size: 11px; cursor: pointer;">Saúde</button>
+                  </sc-if>
+                  <sc-if value="{{ card.tagIs3 }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ card.onCycleTag }}" style="border: 1px solid #3d3060; background: #241d38; color: #b98cff; border-radius: 20px; padding: 3px 9px; font-size: 11px; cursor: pointer;">Estudo</button>
+                  </sc-if>
+                  <sc-if value="{{ card.noTag }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ card.onCycleTag }}" title="Etiqueta" style="border: 1px dashed #303541; background: transparent; color: #5f6472; border-radius: 20px; padding: 3px 9px; font-size: 11px; cursor: pointer;" style-hover="color: #9aa0b0; border-color: #454b5a;">etiqueta</button>
+                  </sc-if>
+                  <button onClick="{{ card.onToggleExpand }}" title="Subtarefas" style="border: 1px solid #2a2f3b; background: transparent; color: #8b909f; border-radius: 20px; padding: 3px 9px; font-size: 11px; font-variant-numeric: tabular-nums; cursor: pointer;" style-hover="border-color: #c8f169; color: #c8f169;">{{ card.subLabel }}</button>
+                  <sc-if value="{{ card.canFocus }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ card.onStartFocus }}" title="Iniciar 25 min de foco" style="margin-left: auto; border: 1px solid #2a2f3b; background: transparent; color: #8b909f; border-radius: 20px; padding: 3px 9px; font-size: 11px; cursor: pointer;" style-hover="border-color: #f2c14e; color: #f2c14e;">▶ foco</button>
+                  </sc-if>
+                  <sc-if value="{{ card.isFocused }}" hint-placeholder-val="{{ false }}">
+                    <span style="margin-left: auto; border: 1px solid #4d3f1c; background: #241d12; color: #f2c14e; border-radius: 20px; padding: 3px 9px; font-size: 11px;">em foco</span>
+                  </sc-if>
+                </div>
+
+                <sc-if value="{{ card.isExpanded }}" hint-placeholder-val="{{ false }}">
+                  <div style="display: flex; flex-direction: column; gap: 7px; padding-top: 3px; border-top: 1px solid #262a34;">
+                    <sc-for list="{{ card.subs }}" as="sub" hint-placeholder-count="2">
+                      <div style="display: flex; align-items: flex-start; gap: 8px;">
+                        <sc-if value="{{ sub.isOpen }}" hint-placeholder-val="{{ true }}">
+                          <button onClick="{{ sub.onToggle }}" style="flex: none; margin-top: 2px; width: 14px; height: 14px; padding: 0; border-radius: 4px; border: 1px solid #3d4453; background: transparent; cursor: pointer;" style-hover="border-color: #c8f169;"></button>
+                        </sc-if>
+                        <sc-if value="{{ sub.isDone }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ sub.onToggle }}" style="flex: none; margin-top: 2px; width: 14px; height: 14px; padding: 0; border-radius: 4px; border: 1px solid #c8f169; background: #c8f169; color: #16200a; font-size: 10px; font-weight: 700; line-height: 1; cursor: pointer;">✓</button>
+                        </sc-if>
+                        <sc-if value="{{ sub.isOpen }}" hint-placeholder-val="{{ true }}">
+                          <span style="flex: 1; font-size: 13px; line-height: 1.4; color: #c2c5cf;">{{ sub.text }}</span>
+                        </sc-if>
+                        <sc-if value="{{ sub.isDone }}" hint-placeholder-val="{{ false }}">
+                          <span style="flex: 1; font-size: 13px; line-height: 1.4; color: #6d7180; text-decoration: line-through;">{{ sub.text }}</span>
+                        </sc-if>
+                        <button onClick="{{ sub.onDelete }}" style="flex: none; border: none; background: transparent; color: #4d525f; font-size: 13px; line-height: 1; padding: 1px; cursor: pointer;" style-hover="color: #ff7a5c;">×</button>
+                      </div>
+                    </sc-for>
+                    <input value="{{ card.subDraft }}" onChange="{{ card.onSubDraft }}" onKeyDown="{{ card.onSubKeyDown }}" placeholder="Nova subtarefa… Enter" style="width: 100%; background: #14161c; color: #f1f2f6; border: 1px solid #2c3140; border-radius: 8px; padding: 7px 9px; font-size: 13px; outline: none;">
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+            <sc-if value="{{ col.isAdding }}" hint-placeholder-val="{{ false }}">
+              <textarea value="{{ draft }}" onChange="{{ onDraftChange }}" onKeyDown="{{ onDraftKeyDown }}" onBlur="{{ onDraftCommit }}" autoFocus="{{ true }}" rows="2" placeholder="Nova tarefa… Enter para salvar" style="width: 100%; resize: vertical; background: #14161c; color: #f1f2f6; border: 1px solid #3c4250; border-radius: 10px; padding: 10px; font-size: 14px; line-height: 1.45; outline: none;"></textarea>
+            </sc-if>
+          </div>
+          <button onClick="{{ col.onAdd }}" style="margin-top: auto; display: flex; align-items: center; gap: 8px; width: 100%; background: transparent; border: 1px dashed #2c3040; border-radius: 10px; padding: 9px 10px; color: #7d818f; font-size: 13px; cursor: pointer; text-align: left;" style-hover="border-color: #c8f169; color: #c8f169;">
+            <span style="font-size: 15px; line-height: 1;">+</span>
+            <span>Adicionar</span>
+          </button>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <sc-if value="{{ showGoals }}" hint-placeholder-val="{{ true }}">
+    <section style="margin-top: 44px;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+        <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #9aa0b0;">Metas</h2>
+        <div style="flex: 1; height: 1px; background: #21242d;"></div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; align-items: start;">
+        <sc-for list="{{ goalColumns }}" as="col" hint-placeholder-count="2">
+          <div style="display: flex; flex-direction: column; gap: 12px; background: transparent; border: 1px solid #2b303c; border-radius: 16px; padding: 18px 16px 14px; min-height: 200px;" onDragOver="{{ col.onDragOver }}" onDrop="{{ col.onDrop }}">
+            <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 0 4px;">
+              <span style="font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; color: #f4f5f8;">{{ col.title }}</span>
+              <span style="font-size: 12px; font-variant-numeric: tabular-nums; color: #7d818f;">{{ col.progressLabel }}</span>
+            </div>
+            <div style="height: 4px; border-radius: 4px; background: #1e2129; overflow: hidden;">
+              <div style="height: 100%; border-radius: 4px; background: #c8f169; width: {{ col.progressWidth }};"></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <sc-for list="{{ col.cards }}" as="card" hint-placeholder-count="2">
+                <div draggable="{{ true }}" onDragStart="{{ card.onDragStart }}" onDragEnd="{{ card.onDragEnd }}" onDrop="{{ card.onDrop }}" style="display: flex; align-items: flex-start; gap: 12px; background: #15171e; border: 1px solid #262a34; border-radius: 12px; padding: 13px 13px 12px; cursor: grab;" style-hover="border-color: #3a4050;">
+                  <sc-if value="{{ card.isOpen }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ card.onToggleDone }}" title="Concluir" style="flex: none; margin-top: 1px; width: 18px; height: 18px; padding: 0; border-radius: 5px; border: 1px solid #3d4453; background: transparent; cursor: pointer;" style-hover="border-color: #c8f169; background: #222a15;"></button>
+                  </sc-if>
+                  <sc-if value="{{ card.isDone }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ card.onToggleDone }}" title="Reabrir" style="flex: none; margin-top: 1px; width: 18px; height: 18px; padding: 0; border-radius: 5px; border: 1px solid #c8f169; background: #c8f169; color: #16200a; font-size: 12px; font-weight: 700; line-height: 1; cursor: pointer;">✓</button>
+                  </sc-if>
+                  <sc-if value="{{ card.isEditing }}" hint-placeholder-val="{{ false }}">
+                    <textarea value="{{ card.editDraft }}" onChange="{{ card.onEditChange }}" onKeyDown="{{ card.onEditKeyDown }}" onBlur="{{ card.onEditCommit }}" autoFocus="{{ true }}" rows="2" style="flex: 1; resize: vertical; background: #14161c; color: #f1f2f6; border: 1px solid #3c4250; border-radius: 8px; padding: 8px; font-size: 14px; line-height: 1.45; outline: none;"></textarea>
+                  </sc-if>
+                  <sc-if value="{{ card.showOpenText }}" hint-placeholder-val="{{ true }}">
+                    <div onDoubleClick="{{ card.onStartEdit }}" style="flex: 1; font-size: 14.5px; line-height: 1.45; color: #dfe1e8; word-break: break-word; text-wrap: pretty;">{{ card.title }}</div>
+                  </sc-if>
+                  <sc-if value="{{ card.showDoneText }}" hint-placeholder-val="{{ false }}">
+                    <div onDoubleClick="{{ card.onStartEdit }}" style="flex: 1; font-size: 14.5px; line-height: 1.45; color: #6d7180; text-decoration: line-through; word-break: break-word; text-wrap: pretty;">{{ card.title }}</div>
+                  </sc-if>
+                  <button onClick="{{ card.onDelete }}" title="Remover" style="flex: none; border: none; background: transparent; color: #565b6a; font-size: 15px; line-height: 1; padding: 2px; cursor: pointer;" style-hover="color: #ff7a5c;">×</button>
+                </div>
+              </sc-for>
+              <sc-if value="{{ col.isAdding }}" hint-placeholder-val="{{ false }}">
+                <textarea value="{{ draft }}" onChange="{{ onDraftChange }}" onKeyDown="{{ onDraftKeyDown }}" onBlur="{{ onDraftCommit }}" autoFocus="{{ true }}" rows="2" placeholder="Nova meta… Enter para salvar" style="width: 100%; resize: vertical; background: #14161c; color: #f1f2f6; border: 1px solid #3c4250; border-radius: 10px; padding: 10px; font-size: 14px; line-height: 1.45; outline: none;"></textarea>
+              </sc-if>
+            </div>
+            <button onClick="{{ col.onAdd }}" style="margin-top: auto; display: flex; align-items: center; gap: 8px; width: 100%; background: transparent; border: 1px dashed #2c3040; border-radius: 10px; padding: 9px 10px; color: #7d818f; font-size: 13px; cursor: pointer; text-align: left;" style-hover="border-color: #c8f169; color: #c8f169;">
+              <span style="font-size: 15px; line-height: 1;">+</span>
+              <span>Adicionar meta</span>
+            </button>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </sc-if>
+
+  <section style="margin-top: 44px;">
+    <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+      <h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #9aa0b0;">Últimos 14 dias</h2>
+      <div style="flex: 1; height: 1px; background: #21242d;"></div>
+      <span style="font-size: 12px; color: #7d818f;">{{ chartSummary }}</span>
+    </div>
+    <div style="display: flex; align-items: flex-end; gap: 10px; background: #15171e; border: 1px solid #22252e; border-radius: 16px; padding: 20px 20px 14px;">
+      <sc-for list="{{ chart }}" as="day" hint-placeholder-count="14">
+        <div title="{{ day.tip }}" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+          <span style="font-size: 10.5px; font-variant-numeric: tabular-nums; color: #6d7180;">{{ day.xpText }}</span>
+          <div style="width: 100%; height: 92px; display: flex; align-items: flex-end;">
+            <sc-if value="{{ day.isToday }}" hint-placeholder-val="{{ false }}">
+              <div style="width: 100%; border-radius: 6px 6px 3px 3px; background: linear-gradient(180deg, #c8f169, #8fd13f); min-height: 3px; height: {{ day.h }};"></div>
+            </sc-if>
+            <sc-if value="{{ day.isPast }}" hint-placeholder-val="{{ true }}">
+              <div style="width: 100%; border-radius: 6px 6px 3px 3px; background: #2d3342; min-height: 3px; height: {{ day.h }};"></div>
+            </sc-if>
+          </div>
+          <span style="font-size: 11px; color: #5f6472;">{{ day.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <footer style="margin-top: 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 12px; color: #5f6472;">
+    <span>Arraste até <b style="color: #93a86a; font-weight: 600;">Feito</b> para ganhar XP (10 / 20 / 30 conforme a prioridade) · metas 60 e 120 · subtarefa +5 · foco 1 XP/min · zerar a coluna Hoje +50</span>
+    <button onClick="{{ onClearDone }}" style="background: transparent; border: 1px solid #24272f; border-radius: 8px; padding: 7px 12px; color: #7d818f; font-size: 12px; cursor: pointer;" style-hover="border-color: #ff7a5c; color: #ff7a5c;">Limpar concluídos</button>
+  </footer>
+
+  <sc-if value="{{ pickOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onPickCancel }}" style="position: fixed; inset: 0; z-index: 60; background: rgba(8, 9, 13, 0.74); display: flex; align-items: center; justify-content: center; padding: 24px;">
+      <div onClick="{{ stopClick }}" style="width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; background: #171a22; border: 1px solid #2b303c; border-radius: 18px; padding: 26px 26px 22px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #d8a45c;">Sessão de foco</span>
+          <h3 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: #f4f5f8; text-wrap: pretty;">{{ pickTitle }}</h3>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+          <button onClick="{{ onPick15 }}" style="background: #1c1f27; border: 1px solid #2f3441; border-radius: 10px; padding: 12px 0; color: #dfe1e8; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="border-color: #f2c14e; color: #f2c14e;">15</button>
+          <button onClick="{{ onPick25 }}" style="background: #1c1f27; border: 1px solid #2f3441; border-radius: 10px; padding: 12px 0; color: #dfe1e8; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="border-color: #f2c14e; color: #f2c14e;">25</button>
+          <button onClick="{{ onPick45 }}" style="background: #1c1f27; border: 1px solid #2f3441; border-radius: 10px; padding: 12px 0; color: #dfe1e8; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="border-color: #f2c14e; color: #f2c14e;">45</button>
+          <button onClick="{{ onPick60 }}" style="background: #1c1f27; border: 1px solid #2f3441; border-radius: 10px; padding: 12px 0; color: #dfe1e8; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer;" style-hover="border-color: #f2c14e; color: #f2c14e;">60</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <input value="{{ pickMin }}" onChange="{{ onPickMin }}" onKeyDown="{{ onPickKeyDown }}" type="number" min="1" max="180" autoFocus="{{ true }}" style="flex: 1; background: #14161c; color: #f1f2f6; border: 1px solid #2f3441; border-radius: 10px; padding: 11px 12px; font-size: 15px; outline: none;">
+          <span style="font-size: 13px; color: #7d818f;">minutos</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <span style="font-size: 11.5px; color: #5f6472;">1 XP por minuto, mínimo 10</span>
+          <div style="display: flex; gap: 10px;">
+            <button onClick="{{ onPickCancel }}" style="background: transparent; border: 1px solid #2b303c; border-radius: 10px; padding: 9px 14px; color: #8b909f; font-size: 13px; cursor: pointer;" style-hover="border-color: #ff7a5c; color: #ff7a5c;">Cancelar</button>
+            <button onClick="{{ onPickStart }}" style="background: #f2c14e; border: 1px solid #f2c14e; border-radius: 10px; padding: 9px 18px; color: #241d12; font-size: 13px; font-weight: 600; cursor: pointer;" style-hover="background: #ffd47a;">Iniciar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;nome&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Conteúdo&quot;},&quot;mostrarMetas&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Conteúdo&quot;}}">
+class Component extends DCLogic {
+  state = (() => {
+    const seed = [
+      { id: 'c1', col: 'backlog', title: 'Revisar anotações da semana', pri: 0, tag: -1, subs: [] },
+      { id: 'c2', col: 'hoje', title: 'Responder e-mails pendentes', pri: 2, tag: 0, subs: [] },
+      { id: 'c3', col: 'hoje', title: 'Treino 40 min', pri: 0, tag: 2, subs: [] },
+      { id: 'c4', col: 'andamento', title: 'Montar proposta do projeto novo', pri: 1, tag: 0, subs: [{ t: 'Levantar escopo', d: true }, { t: 'Estimar prazo', d: false }] },
+      { id: 'c5', col: 'feito', title: 'Planejar o dia', pri: 0, tag: -1, subs: [] },
+      { id: 'c6', col: 'semana', title: 'Fechar relatório mensal', pri: 0, tag: 0, subs: [], done: false },
+      { id: 'c7', col: 'semana', title: 'Agendar consulta', pri: 0, tag: 2, subs: [], done: true },
+      { id: 'c8', col: 'mes', title: 'Terminar curso de dados', pri: 0, tag: 3, subs: [], done: false },
+      { id: 'c9', col: 'mes', title: 'Organizar finanças do trimestre', pri: 0, tag: 1, subs: [], done: false }
+    ];
+    let cards = seed;
+    try {
+      const raw = localStorage.getItem('kanban.dc.v1');
+      if (raw) { const p = JSON.parse(raw); if (Array.isArray(p)) cards = p; }
+    } catch (e) {}
+    let meta = { xp: 0, streak: 0, lastDay: null, bonusDay: null, hist: {} };
+    try {
+      const m = localStorage.getItem('kanban.dc.meta.v1');
+      if (m) meta = Object.assign(meta, JSON.parse(m));
+    } catch (e) {}
+    if (!meta.hist) meta.hist = {};
+    return { cards, adding: null, draft: '', editing: null, editDraft: '', meta, gain: null, expanded: null, subDraft: '', focus: null };
+  })();
+
+  FLOW = [
+    { id: 'backlog', title: 'Backlog / Ideias' },
+    { id: 'hoje', title: 'Hoje' },
+    { id: 'andamento', title: 'Em andamento' },
+    { id: 'feito', title: 'Feito' }
+  ];
+  GOALS = [
+    { id: 'semana', title: 'Esta semana' },
+    { id: 'mes', title: 'Este mês' }
+  ];
+  RANKS = ['Iniciante', 'Aprendiz', 'Focado', 'Constante', 'Estrategista', 'Disciplinado', 'Veterano', 'Mestre', 'Lenda'];
+  POMO = 25 * 60;
+
+  componentDidMount() {
+    this._tick = setInterval(() => {
+      const f = this.state.focus;
+      if (!f || !f.running) return;
+      if (f.left <= 1) {
+        this.setState({ focus: null });
+        this.award(Math.max(10, Math.round((f.total || this.POMO) / 60)), 'foco concluído');
+        this.update(cards => cards.map(c => c.id === f.id ? Object.assign({}, c, { poms: (c.poms || 0) + 1 }) : c));
+      } else {
+        this.setState({ focus: Object.assign({}, f, { left: f.left - 1 }) });
+      }
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this._tick); clearTimeout(this._gainT); }
+
+  levelInfo(xp) {
+    let lvl = 1, base = 0, need = 100;
+    while (xp >= base + need) { base += need; lvl += 1; need = 100 + (lvl - 1) * 60; }
+    return { lvl, into: xp - base, need, pct: Math.round(((xp - base) / need) * 100) };
+  }
+  key(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  today() { return this.key(new Date()); }
+  saveMeta(meta) { try { localStorage.setItem('kanban.dc.meta.v1', JSON.stringify(meta)); } catch (e) {} }
+  save(cards) { try { localStorage.setItem('kanban.dc.v1', JSON.stringify(cards)); } catch (e) {} }
+  update(fn) {
+    this.setState(s => { const cards = fn(s.cards.slice()); this.save(cards); return { cards }; });
+  }
+
+  award(amount, label, completed) {
+    this.setState(s => {
+      const meta = Object.assign({}, s.meta);
+      meta.hist = Object.assign({}, meta.hist);
+      const before = this.levelInfo(meta.xp).lvl;
+      meta.xp = Math.max(0, meta.xp + amount);
+      const t = this.today();
+      const day = Object.assign({ xp: 0, done: 0 }, meta.hist[t]);
+      day.xp = Math.max(0, day.xp + amount);
+      if (completed) day.done += 1;
+      meta.hist[t] = day;
+      if (amount > 0) {
+        if (meta.lastDay !== t) {
+          const y = new Date(); y.setDate(y.getDate() - 1);
+          meta.streak = meta.lastDay === this.key(y) ? (meta.streak || 0) + 1 : 1;
+          meta.lastDay = t;
+        }
+      }
+      const after = this.levelInfo(meta.xp).lvl;
+      this.saveMeta(meta);
+      const text = after > before ? 'Nível ' + after + '!' : (amount > 0 ? '+' + amount + ' XP' : amount + ' XP') + (label ? ' · ' + label : '');
+      clearTimeout(this._gainT);
+      this._gainT = setTimeout(() => this.setState({ gain: null }), 2200);
+      return { meta, gain: text };
+    });
+  }
+  checkDayClear() {
+    const meta = this.state.meta;
+    const t = this.today();
+    if (meta.bonusDay === t) return;
+    if (this.state.cards.filter(c => c.col === 'hoje').length > 0) return;
+    const m = Object.assign({}, meta, { bonusDay: t });
+    this.setState({ meta: m });
+    this.saveMeta(m);
+    setTimeout(() => this.award(50, 'dia limpo'), 260);
+  }
+  move(id, colId, beforeId) {
+    const src = this.state.cards.find(c => c.id === id);
+    if (src && colId === 'feito' && src.col !== 'feito') {
+      this.award([10, 20, 30][src.pri || 0], 'missão concluída', true);
+      if (src.col === 'hoje') setTimeout(() => this.checkDayClear(), 60);
+    } else if (src && src.col === 'feito' && colId !== 'feito') {
+      this.award(-[10, 20, 30][src.pri || 0], 'reaberta');
+    }
+    this.update(cards => {
+      const i = cards.findIndex(c => c.id === id);
+      if (i < 0) return cards;
+      const card = Object.assign({}, cards[i], { col: colId });
+      cards.splice(i, 1);
+      const at = beforeId ? cards.findIndex(c => c.id === beforeId) : -1;
+      if (at >= 0) cards.splice(at, 0, card); else cards.push(card);
+      return cards;
+    });
+  }
+
+  buildCard(c) {
+    const editing = this.state.editing === c.id;
+    const subs = c.subs || [];
+    const doneSubs = subs.filter(s => s.d).length;
+    const focus = this.state.focus;
+    return {
+      id: c.id,
+      title: c.title,
+      isEditing: editing,
+      isNotEditing: !editing,
+      editDraft: this.state.editDraft,
+      isHigh: c.pri === 2,
+      isMed: c.pri === 1,
+      isDone: !!c.done,
+      isOpen: !c.done,
+      showDoneText: !editing && !!c.done,
+      showOpenText: !editing && !c.done,
+      tagIs0: c.tag === 0,
+      tagIs1: c.tag === 1,
+      tagIs2: c.tag === 2,
+      tagIs3: c.tag === 3,
+      noTag: c.tag === undefined || c.tag === null || c.tag < 0,
+      subLabel: subs.length ? doneSubs + '/' + subs.length + ' subtarefas' : '+ subtarefa',
+      isExpanded: this.state.expanded === c.id,
+      subDraft: this.state.expanded === c.id ? this.state.subDraft : '',
+      isFocused: !!focus && focus.id === c.id,
+      canFocus: !focus || focus.id !== c.id,
+      subs: subs.map((s, i) => ({
+        text: s.t,
+        isDone: !!s.d,
+        isOpen: !s.d,
+        onToggle: () => {
+          if (!s.d) this.award(5, 'subtarefa');
+          this.update(cards => cards.map(x => x.id === c.id ? Object.assign({}, x, { subs: x.subs.map((y, j) => j === i ? Object.assign({}, y, { d: !y.d }) : y) }) : x));
+        },
+        onDelete: () => this.update(cards => cards.map(x => x.id === c.id ? Object.assign({}, x, { subs: x.subs.filter((y, j) => j !== i) }) : x))
+      })),
+      onToggleExpand: () => this.setState(s => ({ expanded: s.expanded === c.id ? null : c.id, subDraft: '' })),
+      onSubDraft: e => this.setState({ subDraft: e.target.value }),
+      onSubKeyDown: e => {
+        if (e.key === 'Escape') this.setState({ expanded: null, subDraft: '' });
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const v = (this.state.subDraft || '').trim();
+        if (!v) return;
+        this.setState({ subDraft: '' });
+        this.update(cards => cards.map(x => x.id === c.id ? Object.assign({}, x, { subs: (x.subs || []).concat([{ t: v, d: false }]) }) : x));
+      },
+      onCycleTag: () => this.update(cards => cards.map(x => x.id === c.id ? Object.assign({}, x, { tag: ((x.tag === undefined || x.tag === null ? -1 : x.tag) + 2) % 5 - 1 }) : x)),
+      onStartFocus: () => this.setState({ pick: c.id, pickMin: '25' }),
+      onDragStart: e => { this.drag = c.id; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', c.id); } catch (err) {} },
+      onDragEnd: () => { this.drag = null; },
+      onDrop: e => { e.preventDefault(); e.stopPropagation(); if (this.drag && this.drag !== c.id) this.move(this.drag, c.col, c.id); this.drag = null; },
+      onDelete: () => this.update(cards => cards.filter(x => x.id !== c.id)),
+      onCyclePriority: () => this.update(cards => cards.map(x => x.id === c.id ? Object.assign({}, x, { pri: ((x.pri || 0) + 1) % 3 }) : x)),
+      onToggleDone: () => {
+        const pts = c.col === 'mes' ? 120 : 60;
+        this.award(c.done ? -pts : pts, c.done ? 'meta reaberta' : 'meta alcançada', !c.done);
+        this.update(cards => cards.map(x => x.id === c.id ? Object.assign({}, x, { done: !x.done }) : x));
+      },
+      onStartEdit: () => this.setState({ editing: c.id, editDraft: c.title, adding: null }),
+      onEditChange: e => this.setState({ editDraft: e.target.value }),
+      onEditCommit: () => {
+        const v = (this.state.editDraft || '').trim();
+        this.setState({ editing: null });
+        if (v && v !== c.title) this.update(cards => cards.map(x => x.id === c.id ? Object.assign({}, x, { title: v }) : x));
+      },
+      onEditKeyDown: e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); e.target.blur(); }
+        if (e.key === 'Escape') this.setState({ editing: null });
+      }
+    };
+  }
+
+  buildColumn(def) {
+    const cards = this.state.cards.filter(c => c.col === def.id);
+    const done = cards.filter(c => c.done).length;
+    const pct = cards.length ? Math.round((done / cards.length) * 100) : 0;
+    return {
+      id: def.id,
+      title: def.title,
+      count: cards.length,
+      cards: cards.map(c => this.buildCard(c)),
+      isAdding: this.state.adding === def.id,
+      progressLabel: cards.length ? done + '/' + cards.length + ' concluídas' : 'sem metas',
+      progressWidth: pct + '%',
+      onAdd: () => this.setState({ adding: def.id, draft: '', editing: null }),
+      onDragOver: e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; },
+      onDrop: e => { e.preventDefault(); if (this.drag) this.move(this.drag, def.id, null); this.drag = null; }
+    };
+  }
+
+  commitDraft() {
+    const col = this.state.adding;
+    const v = (this.state.draft || '').trim();
+    this.setState({ adding: null, draft: '' });
+    if (!col || !v) return;
+    this.update(cards => cards.concat([{ id: 'c' + Date.now(), col, title: v, pri: 0, tag: -1, subs: [], done: false }]));
+  }
+
+  startFocus(min) {
+    const m = Math.max(1, Math.min(180, Math.round(Number(min) || 0)));
+    const id = this.state.pick;
+    if (!id) return;
+    this.setState({ pick: null, focus: { id, left: m * 60, total: m * 60, running: true } });
+  }
+
+  buildChart() {
+    const hist = this.state.meta.hist || {};
+    const days = [];
+    const wd = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const k = this.key(d);
+      const e = hist[k] || { xp: 0, done: 0 };
+      days.push({ k, xp: e.xp, done: e.done, label: wd[d.getDay()], isToday: i === 0, date: d.getDate() + '/' + (d.getMonth() + 1) });
+    }
+    const max = Math.max(50, ...days.map(d => d.xp));
+    return days.map(d => ({
+      label: d.label,
+      isToday: d.isToday,
+      isPast: !d.isToday,
+      h: Math.round((d.xp / max) * 100) + '%',
+      xpText: d.xp > 0 ? d.xp : '',
+      tip: d.date + ' · ' + d.xp + ' XP · ' + d.done + ' concluídas'
+    }));
+  }
+
+  renderVals() {
+    const d = new Date();
+    const dias = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+    const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+    const h = d.getHours();
+    const parte = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+    const nome = this.props.nome;
+    const cards = this.state.cards;
+    const lv = this.levelInfo(this.state.meta.xp);
+    const streak = this.state.meta.streak || 0;
+    const hist = this.state.meta.hist || {};
+    const chart = this.buildChart();
+    const total14 = Object.keys(hist).reduce((a, k) => a, 0);
+    const sum = chart.reduce((a, x) => a + (parseInt(x.xpText, 10) || 0), 0);
+    const f = this.state.focus;
+    const focusCard = f ? cards.find(c => c.id === f.id) : null;
+    const mm = f ? String(Math.floor(f.left / 60)).padStart(2, '0') : '00';
+    const ss = f ? String(f.left % 60).padStart(2, '0') : '00';
+    return {
+      dateLabel: dias[d.getDay()] + ', ' + d.getDate() + ' de ' + meses[d.getMonth()],
+      greeting: nome ? parte + ', ' + nome + '.' : parte + '.',
+      openCount: cards.filter(c => c.col !== 'feito' && !c.done).length,
+      doneFlow: cards.filter(c => c.col === 'feito').length,
+      doneGoals: cards.filter(c => c.done && (c.col === 'semana' || c.col === 'mes')).length,
+      showGoals: this.props.mostrarMetas ?? true,
+      level: lv.lvl,
+      rank: this.RANKS[Math.min(lv.lvl - 1, this.RANKS.length - 1)],
+      xpLabel: lv.into + ' / ' + lv.need + ' XP',
+      xpTotalLabel: this.state.meta.xp + ' XP no total',
+      xpWidth: lv.pct + '%',
+      streakLabel: streak > 0 ? (streak === 1 ? '1 dia seguido' : streak + ' dias seguidos') : 'sem sequência',
+      gain: this.state.gain,
+      hasGain: !!this.state.gain,
+      chart,
+      chartSummary: sum + ' XP nas duas últimas semanas',
+      focusActive: !!f,
+      focusClock: mm + ':' + ss,
+      focusTitle: focusCard ? focusCard.title : '',
+      focusWidth: f ? Math.round((((f.total || this.POMO) - f.left) / (f.total || this.POMO)) * 100) + '%' : '0%',
+      pickOpen: !!this.state.pick,
+      pickTitle: this.state.pick ? (cards.find(c => c.id === this.state.pick) || {}).title : '',
+      pickMin: this.state.pickMin ?? '25',
+      onPickMin: e => this.setState({ pickMin: e.target.value }),
+      onPickKeyDown: e => {
+        if (e.key === 'Enter') { e.preventDefault(); this.startFocus(this.state.pickMin); }
+        if (e.key === 'Escape') this.setState({ pick: null });
+      },
+      onPickCancel: () => this.setState({ pick: null }),
+      onPickStart: () => this.startFocus(this.state.pickMin),
+      onPick15: () => this.startFocus(15),
+      onPick25: () => this.startFocus(25),
+      onPick45: () => this.startFocus(45),
+      onPick60: () => this.startFocus(60),
+      stopClick: e => e.stopPropagation(),
+      focusToggleLabel: f && f.running ? 'Pausar' : 'Retomar',
+      onFocusToggle: () => this.setState(s => ({ focus: s.focus ? Object.assign({}, s.focus, { running: !s.focus.running }) : null })),
+      onFocusStop: () => this.setState({ focus: null }),
+      flowColumns: this.FLOW.map(c => this.buildColumn(c)),
+      goalColumns: this.GOALS.map(c => this.buildColumn(c)),
+      draft: this.state.draft,
+      onDraftChange: e => this.setState({ draft: e.target.value }),
+      onDraftKeyDown: e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.commitDraft(); }
+        if (e.key === 'Escape') this.setState({ adding: null, draft: '' });
+      },
+      onDraftCommit: () => this.commitDraft(),
+      onClearDone: () => this.update(cs => cs.filter(c => !(c.col === 'feito' || (c.done && (c.col === 'semana' || c.col === 'mes')))))
+    };
+  }
+}
+
+</script>
+</body>
+</html>
