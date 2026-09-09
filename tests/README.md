@@ -14,16 +14,25 @@ Atualizar a cada fase que adiciona ou remove suíte.
 | Suíte | Onde | Cobre | Cenários |
 |---|---|---|---|
 | XP rules (reducer) | `frontend/src/features/kanban/xpRules.spec.ts` | `applyAction`/`applyActions`, tabela de níveis, invariantes, pureza do reducer | 55 — 37 cenários de `xp-rules.json` + 11 de tabela de nível + 5 invariantes + 1 de pureza |
+| Auth service | `backend/src/test/java/.../service/AuthServiceTest.java` | Register (grava `user_stats`, envia verificação), login (mensagem igual para e-mail inexistente e senha errada), rate limit bloqueia antes do banco, reset de senha revoga todas as sessões | 6 |
+| Auth controller (slice) | `backend/src/test/java/.../controller/AuthControllerTest.java` | Roteamento, validação de request, mapeamento de erro (401/400/204) — sem filtros de segurança | 4 |
 
-Rodar: `cd frontend && npm run test` (ou `npm run test:report` para gerar
-`reports/verificacao.md`).
+Rodar frontend: `cd frontend && npm run test` (ou `npm run test:report` para
+gerar `reports/verificacao.md`).
+Rodar backend: `cd backend && ./mvnw test` (relatório Surefire em
+`backend/target/surefire-reports/` — ainda não incorporado ao
+`reports/verificacao.md`, que hoje só cobre o Vitest; ver nota abaixo).
 
 **Planejado, ainda não existe:**
 
 - `XpRulesTableTest` (JUnit) — mesma tabela `xp-rules.json`, contra o
-  service Java. Fase 3.
+  service Java. Entra quando a Fase 3 tiver um `XpService`.
 - Testes de service isolados (`CardServiceTest`, `GoalServiceTest`, ...) à
   medida que a Fase 3 cria os services.
+
+**Débito:** `frontend/scripts/report.mjs` só lê o resultado do Vitest.
+`reports/verificacao.md` não reflete o resultado do Surefire — rodar
+`./mvnw test` separadamente até isso ser unificado.
 
 ## Integração
 

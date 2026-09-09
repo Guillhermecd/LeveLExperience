@@ -36,9 +36,15 @@ spring:
 app:
   jwt:
     secret: ${JWT_SECRET}
-    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+    # Decision #10: access token stays short-lived; the refresh token (revocable,
+    # persisted in refresh_tokens) is what carries the long session.
+    access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS:900000}
+    refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:2592000000}
   frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
   cors-origins: ${CORS_ORIGINS:http://localhost:5173}
   email:
     enabled: ${EMAIL_ENABLED:true}
     from: ${EMAIL_FROM:no-reply@oaksd.local}
+  rate-limit:
+    max-attempts: 20
+    window-minutes: 15
