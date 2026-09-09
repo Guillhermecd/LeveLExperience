@@ -39,7 +39,7 @@ const useStyles = createStyles(() => ({
   },
 }));
 
-/** Fase 1: static UI wired to in-memory mock state — see state/useBoardState.ts. */
+/** UI wired to useBoardState, which routes XP-affecting actions through the Fase 2 reducer. */
 export function BoardPage({ name, showGoals = true }: { name?: string; showGoals?: boolean }) {
   const { styles } = useStyles();
   const state = useBoardState();
@@ -57,7 +57,15 @@ export function BoardPage({ name, showGoals = true }: { name?: string; showGoals
             onToggleFocusRunning={state.toggleFocusRunning}
             onEndFocus={state.endFocus}
           />
-          <LevelPanel level={2} rank="Aprendiz" xpInLevel={40} xpForLevel={160} xpTotal={140} streak={3} gainText={null} />
+          <LevelPanel
+            level={state.display.level}
+            rank={state.display.rank}
+            xpInLevel={state.display.xpIntoLevel}
+            xpForLevel={state.display.xpForNextLevel}
+            xpTotal={state.display.xpTotal}
+            streak={state.display.streak}
+            gainText={state.gain}
+          />
           <StatPanel variant="open" label="Em aberto" value={state.openCount} />
           <StatPanel variant="done" label="Tarefas feitas" value={state.doneCount} />
           <StatPanel variant="goals" label="Metas batidas" value={state.goalsDoneCount} />

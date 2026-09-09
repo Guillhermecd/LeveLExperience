@@ -255,6 +255,13 @@ Roda a tabela de cenários da fase 0 no Vitest. Zero renderização nos testes.
 **Pronto quando:** todos os cenários passam e a UI da fase 1 está ligada no
 reducer, funcionando de ponta a ponta em memória.
 
+**Nota de estrutura:** o reducer mora em `src/features/kanban/`, não em
+`reducers/` (o nome genérico da seção "Camadas" acima). A frase de entrega
+desta fase, mais específica, prevalece; `features/kanban/` inclui também
+`types.ts`, `levels.ts`, `xpRulesTable.ts` (import direto de
+`xp-rules.json` na raiz) e `actions/` (um arquivo por tipo de ação do
+reducer).
+
 ---
 
 ## Fase 3 — Backend Spring Boot
