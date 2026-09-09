@@ -9,7 +9,7 @@ import type { FocusSession } from '../../../types/board';
 export function useFocusTimer(
   focus: FocusSession | null,
   setFocus: Dispatch<SetStateAction<FocusSession | null>>,
-  onComplete: (cardId: string) => void,
+  onComplete: (cardId: string, plannedMinutes: number) => void,
 ) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -23,7 +23,7 @@ export function useFocusTimer(
         if (!current || !current.running) return current;
         if (current.leftSeconds <= 1) {
           if (intervalRef.current) clearInterval(intervalRef.current);
-          onComplete(current.cardId);
+          onComplete(current.cardId, Math.round(current.totalSeconds / 60));
           return null;
         }
         return { ...current, leftSeconds: current.leftSeconds - 1 };

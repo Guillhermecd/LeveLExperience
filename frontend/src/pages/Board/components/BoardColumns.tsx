@@ -1,3 +1,4 @@
+import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { createStyles } from 'antd-style';
 import { color, font, fontSize, space } from '../../../theme/tokens';
 import type { BoardColumn as BoardColumnKey } from '../../../types/board';
@@ -38,17 +39,24 @@ const columns: BoardColumnKey[] = ['backlog', 'today', 'doing', 'done'];
 export function BoardColumns({ state }: { state: BoardState }) {
   const { styles } = useStyles();
 
+  function handleDragEnd(event: DragEndEvent) {
+    const columnKey = event.over?.id as BoardColumnKey | undefined;
+    if (columnKey) state.moveCard(String(event.active.id), columnKey);
+  }
+
   return (
     <section>
       <div className={styles.sectionHeader}>
         <span className={styles.sectionTitle}>Fluxo diário</span>
         <div className={styles.rule} />
       </div>
-      <div className={styles.grid}>
-        {columns.map((columnKey) => (
-          <BoardColumn key={columnKey} columnKey={columnKey} state={state} />
-        ))}
-      </div>
+      <DndContext onDragEnd={handleDragEnd}>
+        <div className={styles.grid}>
+          {columns.map((columnKey) => (
+            <BoardColumn key={columnKey} columnKey={columnKey} state={state} />
+          ))}
+        </div>
+      </DndContext>
     </section>
   );
 }

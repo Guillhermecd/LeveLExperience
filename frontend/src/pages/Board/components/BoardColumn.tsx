@@ -1,10 +1,11 @@
+import { useDroppable } from '@dnd-kit/core';
 import { createStyles } from 'antd-style';
 import type { KeyboardEvent } from 'react';
 import { color, font, fontSize, radius, space } from '../../../theme/tokens';
 import { columnLabel } from '../../../theme/labels';
 import type { BoardColumn as BoardColumnKey, Card } from '../../../types/board';
 import type { BoardState } from '../state/useBoardState';
-import { TaskCard } from './TaskCard';
+import { DraggableTaskCard } from './DraggableTaskCard';
 
 const useStyles = createStyles(() => ({
   column: {
@@ -67,6 +68,7 @@ const useStyles = createStyles(() => ({
 
 export function BoardColumn({ columnKey, state }: { columnKey: BoardColumnKey; state: BoardState }) {
   const { styles } = useStyles();
+  const { setNodeRef, isOver } = useDroppable({ id: columnKey });
   const cards = state.cards.filter((c: Card) => c.columnKey === columnKey);
   const isAdding = state.adding === `column:${columnKey}`;
 
@@ -80,14 +82,14 @@ export function BoardColumn({ columnKey, state }: { columnKey: BoardColumnKey; s
   }
 
   return (
-    <div className={styles.column}>
+    <div ref={setNodeRef} className={styles.column} style={isOver ? { borderColor: color.border.cardHover } : undefined}>
       <div className={styles.header}>
         <span className={styles.name}>{columnLabel[columnKey]}</span>
         <span className={styles.count}>{cards.length}</span>
       </div>
 
       {cards.map((card) => (
-        <TaskCard
+        <DraggableTaskCard
           key={card.id}
           card={card}
           isEditing={state.editing === card.id}
