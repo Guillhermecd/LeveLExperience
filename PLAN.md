@@ -51,7 +51,9 @@ projeto — Java/Spring Boot + PostgreSQL, decisão #6.
 docker compose -f docker-compose.dev.yml up -d postgres mailpit
 ```
 
-- **PostgreSQL** em `localhost:5432` — obrigatório no boot do backend
+- **PostgreSQL** em `localhost:5440` (5432-5442 já ocupados por outros
+  projetos/serviços nativos neste ambiente — ajustar se a sua máquina não
+  tiver esse conflito) — obrigatório no boot do backend
   (`SPRING_DATASOURCE_URL`, decisão #6). Sem ele o backend não sobe.
 - **Mailpit** SMTP em `127.0.0.1:1025`, UI em `http://localhost:8025` —
   necessário a partir da Fase 3 (verify-email, forgot/reset password) e usado

@@ -24,8 +24,8 @@ lista completa em [`PLAN.md`](PLAN.md#desvios-do-template-bimd-registrar-no-read
 LevelExperience/
   frontend/                       React/TypeScript/Vite
   backend/                        Java/Spring Boot
+    src/main/resources/db/migration/V1__initial_schema.sql   Schema Postgres (Flyway)
   docker-compose.dev.yml          Postgres + Mailpit locais
-  V1__initial_schema.sql          Schema Postgres (Flyway)
   xp-rules.json                   Tabela de cenários de XP — fonte única de verdade
   Kanban para tarefas e metas/
     design_handoff_kanban/        Referência visual e comportamental (HTML), não é código de produção
@@ -35,8 +35,8 @@ LevelExperience/
   CLAUDE.md                       Convenções de código e idioma
 ```
 
-`frontend/` e `backend/` ainda não existem neste commit — nascem na Fase 1 e
-na Fase 3, respectivamente. Ver `PLAN.md` para a ordem completa.
+`frontend/` nasceu na Fase 1; `backend/` na Fase 3. Ver `PLAN.md` para a
+ordem completa das fases.
 
 ## Como o projeto funciona
 
@@ -64,7 +64,7 @@ um teste passar: se o código diverge dela, o código é que está errado.
 # banco e e-mail de desenvolvimento
 docker compose -f docker-compose.dev.yml up -d postgres mailpit
 
-# backend
+# backend — requer JDK 21 (ver backend/README.md)
 cd backend && cp .env.example .env && ./mvnw spring-boot:run
 
 # frontend
@@ -72,7 +72,7 @@ cd frontend && npm install && npm run dev
 ```
 
 Detalhes de variáveis de ambiente e serviços em
-[`PLAN.md`](PLAN.md#serviços-locais-docker).
+[`PLAN.md`](PLAN.md#serviços-locais-docker) e [`backend/README.md`](backend/README.md).
 
 ## Documentação de referência
 
