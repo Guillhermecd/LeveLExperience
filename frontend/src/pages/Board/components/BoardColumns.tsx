@@ -1,0 +1,178 @@
+import { createStyles } from 'antd-style';
+import type { KeyboardEvent } from 'react';
+import { color, font, fontSize, radius, space } from '../../../theme/tokens';
+import { columnLabel } from '../../../theme/labels';
+import type { BoardColumn as BoardColumnKey, Card } from '../../../types/board';
+import { TaskCard } from './TaskCard';
+import type { BoardState } from '../useBoardState';
+
+const useStyles = createStyles(() => ({
+  sectionHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: space.md1,
+    marginBottom: space.md2,
+  },
+  sectionTitle: {
+    fontFamily: font.heading,
+    fontSize: fontSize.md15,
+    fontWeight: 600,
+    letterSpacing: '.1em',
+    textTransform: 'uppercase',
+    color: color.text.sectionLabel,
+    whiteSpace: 'nowrap',
+  },
+  rule: {
+    flex: 1,
+    height: 1,
+    background: color.border.subtle,
+  },
+  grid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+    gap: space.md2,
+    alignItems: 'start',
+  },
+  column: {
+    background: color.surface.column,
+    border: `1px solid ${color.border.column}`,
+    borderRadius: radius.lg1,
+    padding: `${space.md1}px ${space.sm3}px ${space.sm3}px`,
+    minHeight: 260,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: space.sm2,
+  },
+  columnHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  columnName: {
+    fontFamily: font.heading,
+    fontSize: fontSize.md,
+    fontWeight: 600,
+    color: color.text.body,
+  },
+  columnCount: {
+    fontSize: fontSize.sm,
+    fontVariantNumeric: 'tabular-nums',
+    color: color.text.counter,
+    background: color.surface.chipDefault,
+    borderRadius: radius.pill,
+    padding: `3px ${space.xs4}px`,
+  },
+  addButton: {
+    marginTop: 'auto',
+    border: `1px dashed ${color.border.dashed}`,
+    borderRadius: radius.sm5,
+    padding: `${space.xs4}px ${space.sm1}px`,
+    fontSize: fontSize.sm13,
+    color: color.text.label,
+    background: 'none',
+    cursor: 'pointer',
+    textAlign: 'left',
+    '&:hover': {
+      borderColor: color.lime.text,
+      color: color.lime.text,
+    },
+  },
+  addArea: {
+    width: '100%',
+    background: color.surface.field,
+    border: `1px solid ${color.border.fieldFocus}`,
+    borderRadius: radius.sm3,
+    padding: space.xs3,
+    fontSize: fontSize.md,
+    color: color.text.card,
+    fontFamily: font.body,
+    resize: 'none',
+    boxSizing: 'border-box',
+  },
+}));
+
+const columns: BoardColumnKey[] = ['backlog', 'today', 'doing', 'done'];
+
+export function BoardColumns({ state }: { state: BoardState }) {
+  const { styles } = useStyles();
+
+  return (
+    <section>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionTitle}>Fluxo diário</span>
+        <div className={styles.rule} />
+      </div>
+      <div className={styles.grid}>
+        {columns.map((columnKey) => (
+          <BoardColumnView key={columnKey} columnKey={columnKey} state={state} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function BoardColumnView({ columnKey, state }: { columnKey: BoardColumnKey; state: BoardState }) {
+  const { styles } = useStyles();
+  const cards = state.cards.filter((c: Card) => c.columnKey === columnKey);
+  const isAdding = state.adding === `column:${columnKey}`;
+
+  function handleAddKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      state.commitAddCard(columnKey);
+    } else if (event.key === 'Escape') {
+      state.cancelAdding();
+    }
+  }
+
+  return (
+    <div className={styles.column}>
+      <div className={styles.columnHeader}>
+        <span className={styles.columnName}>{columnLabel[columnKey]}</span>
+        <span className={styles.columnCount}>{cards.length}</span>
+      </div>
+
+      {cards.map((card) => (
+        <TaskCard
+          key={card.id}
+          card={card}
+          isEditing={state.editing === card.id}
+          editDraft={state.editDraft}
+          onEditDraftChange={state.setEditDraft}
+          onStartEdit={() => state.startEditingCard(card)}
+          onCommitEdit={state.commitCardEdit}
+          onCancelEdit={state.cancelCardEdit}
+          isExpanded={state.expanded === card.id}
+          onToggleExpanded={() => state.toggleExpanded(card.id)}
+          subDraft={state.subDraft}
+          onSubDraftChange={state.setSubDraft}
+          onAddSubtask={() => state.addSubtask(card.id)}
+          onToggleSubtask={(subtaskId) => state.toggleSubtask(card.id, subtaskId)}
+          onRemoveSubtask={(subtaskId) => state.removeSubtask(card.id, subtaskId)}
+          onCyclePriority={() => state.cyclePriority(card.id)}
+          onCycleTag={() => state.cycleTag(card.id)}
+          onRemove={() => state.removeCard(card.id)}
+          isFocusTarget={state.focus?.cardId === card.id}
+          onOpenFocusPicker={() => state.openFocusPicker(card.id)}
+        />
+      ))}
+
+      {isAdding ? (
+        <textarea
+          className={styles.addArea}
+          rows={2}
+          autoFocus
+          placeholder="Nova tarefa… Enter para salvar"
+          value={state.draft}
+          onChange={(e) => state.setDraft(e.target.value)}
+          onKeyDown={handleAddKeyDown}
+          onBlur={() => state.commitAddCard(columnKey)}
+        />
+      ) : (
+        <button className={styles.addButton} onClick={() => state.startAdding(`column:${columnKey}`)}>
+          + Adicionar
+        </button>
+      )}
+    </div>
+  );
+}
