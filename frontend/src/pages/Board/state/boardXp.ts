@@ -34,7 +34,10 @@ export function applyBoardXpAction(
 ): BoardXpResult {
   const sim = toSimState(cards, goals, stats);
   const { state, events } = applyAction(sim, action, today);
-  if (events.length === 0) return { cards, goals, stats, events };
+  // A real no-op (card already in that column, goal/subtask already at that
+  // value) returns the same reference — see reducer.ts. A column change or
+  // an unchecked subtask can still be a real change with zero XP events.
+  if (state === sim) return { cards, goals, stats, events };
 
   const newCards = cards.map((card) => {
     const simCard = state.cards.find((sc) => sc.id === card.id);

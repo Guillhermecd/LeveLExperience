@@ -40,6 +40,7 @@ export function applyMoveCard(
     stats = applyEvent(stats, event, today);
   }
 
-  if (events.length === 0) return { state, events: [] };
+  // The column change is real even when it carries no XP event (e.g.
+  // backlog -> today) — only card.column === action.to above is a no-op.
   return { state: { ...state, cards: newCards, stats }, events };
 }
