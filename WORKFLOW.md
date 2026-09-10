@@ -25,7 +25,8 @@ partir da branch da fase, não da `main`:
 ```
 fase/3-backend/scaffold
 fase/3-backend/auth
-fase/3-backend/cards-e-move
+fase/3-backend/cards-crud
+fase/3-backend/move-xp
 fase/3-backend/foco
 ```
 
