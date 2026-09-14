@@ -1,5 +1,6 @@
 package br.com.oaksd.kanban.config;
 
+import br.com.oaksd.kanban.security.JsonAuthenticationEntryPoint;
 import br.com.oaksd.kanban.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -25,11 +26,15 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http,
       @Qualifier("corsConfigurationSource") CorsConfigurationSource corsSource,
-      JwtAuthenticationFilter jwtFilter) throws Exception {
+      JwtAuthenticationFilter jwtFilter, JsonAuthenticationEntryPoint authEntryPoint) throws Exception {
     http
         .csrf(csrf -> csrf.disable())
         .cors(cors -> cors.configurationSource(corsSource))
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // Without this, a missing/invalid token falls through to Spring
+        // Security's default Http403ForbiddenEntryPoint — see
+        // JsonAuthenticationEntryPoint for why that breaks token refresh.
+        .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**").permitAll()
             // Without this, an uncaught exception on an authenticated request
