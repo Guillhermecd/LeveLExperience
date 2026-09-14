@@ -1,5 +1,7 @@
 import { createStyles } from 'antd-style';
+import { Spin } from 'antd';
 import { color, font, space } from '../../theme/tokens';
+import { useAuth } from '../Auth/AuthContext';
 import { useBoardState } from './state/useBoardState';
 import { HeaderGreeting } from './components/HeaderGreeting';
 import { FocusHeaderPanel } from './components/FocusHeaderPanel';
@@ -42,14 +44,32 @@ const useStyles = createStyles(() => ({
 /** UI wired to useBoardState, which routes XP-affecting actions through the Fase 2 reducer. */
 export function BoardPage({ name, showGoals = true }: { name?: string; showGoals?: boolean }) {
   const { styles } = useStyles();
+  const { user } = useAuth();
   const state = useBoardState();
   const focusCard = state.cards.find((c) => c.id === state.focus?.cardId);
   const pickedCard = state.cards.find((c) => c.id === state.pick);
+  const displayName = name ?? user?.name ?? undefined;
+
+  if (state.loading) {
+    return (
+      <div className={styles.page} style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (state.loadError) {
+    return (
+      <div className={styles.page} style={{ alignItems: 'center', justifyContent: 'center' }}>
+        <span>Não foi possível carregar o quadro: {state.loadError}</span>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.page}>
       <div className={styles.headerRow}>
-        <HeaderGreeting name={name} />
+        <HeaderGreeting name={displayName} />
         <div className={styles.headerRight}>
           <FocusHeaderPanel
             focus={state.focus}

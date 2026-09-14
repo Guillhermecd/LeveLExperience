@@ -3,6 +3,7 @@ package br.com.oaksd.kanban.repository;
 import br.com.oaksd.kanban.entity.XpEvent;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,8 @@ public interface XpEventRepository extends JpaRepository<XpEvent, Long> {
   List<XpEvent> findByUserIdAndDayGreaterThanEqualOrderByDayAsc(UUID userId, LocalDate since);
 
   List<XpEvent> findByUserIdOrderByDayAsc(UUID userId);
+
+  // Feeds StatsResponse.cleanDayPaid — the frontend reducer needs the last
+  // day the bonus was paid (any day) to reproduce the once-per-day rule.
+  Optional<XpEvent> findFirstByUserIdAndReasonOrderByDayDesc(UUID userId, String reason);
 }

@@ -56,9 +56,16 @@ class StatsServiceTest {
     event.setReason("card_done");
     when(xpEventRepository.findByUserIdAndDayGreaterThanEqualOrderByDayAsc(org.mockito.ArgumentMatchers.eq(userId),
         org.mockito.ArgumentMatchers.any())).thenReturn(List.of(event));
+    when(xpEventRepository.sumDeltaByUserId(userId)).thenReturn(109);
+
+    XpEvent cleanDayEvent = new XpEvent();
+    cleanDayEvent.setDay(today.minusDays(1));
+    when(xpEventRepository.findFirstByUserIdAndReasonOrderByDayDesc(userId, "clean_day"))
+        .thenReturn(Optional.of(cleanDayEvent));
 
     StatsResponse response = statsService.getStats(userId);
 
+    assertThat(response.rawTotal()).isEqualTo(109);
     assertThat(response.xpTotal()).isEqualTo(109);
     assertThat(response.level()).isEqualTo(2);
     assertThat(response.rank()).isEqualTo("Aprendiz");
@@ -66,6 +73,7 @@ class StatsServiceTest {
     assertThat(response.dayXp()).isEqualTo(10);
     assertThat(response.dayDone()).isEqualTo(1);
     assertThat(response.history()).hasSize(14);
+    assertThat(response.cleanDayPaid()).isEqualTo(today.minusDays(1));
   }
 
   @Test

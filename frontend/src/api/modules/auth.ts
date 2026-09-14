@@ -1,4 +1,5 @@
 import { apiRequest } from '../api';
+import { clearCurrentUser, setCurrentUser } from '../session';
 import { clearTokens, getRefreshToken, setTokens } from '../tokenStore';
 
 export type UserDto = {
@@ -29,6 +30,7 @@ export async function register(input: {
     skipAuthRetry: true,
   });
   setTokens(response.accessToken, response.refreshToken);
+  setCurrentUser(response.user);
   return response.user;
 }
 
@@ -39,12 +41,14 @@ export async function login(input: { email: string; password: string }): Promise
     skipAuthRetry: true,
   });
   setTokens(response.accessToken, response.refreshToken);
+  setCurrentUser(response.user);
   return response.user;
 }
 
 export async function logout(): Promise<void> {
   const refreshToken = getRefreshToken();
   clearTokens();
+  clearCurrentUser();
   if (!refreshToken) return;
   // Best-effort: the local session is already cleared either way.
   await apiRequest<void>('/api/auth/logout', {

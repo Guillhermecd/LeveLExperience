@@ -39,6 +39,7 @@ export type Goal = {
 
 export type FocusSession = {
   cardId: string;
+  sessionId: string;
   totalSeconds: number;
   leftSeconds: number;
   running: boolean;
