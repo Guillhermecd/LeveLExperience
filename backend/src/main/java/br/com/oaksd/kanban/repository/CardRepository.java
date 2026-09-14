@@ -15,4 +15,8 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
   Optional<Card> findTopByUserIdAndColumnKeyOrderByPositionDesc(UUID userId, String columnKey);
 
   long countByUserIdAndColumnKey(UUID userId, String columnKey);
+
+  // Drives /move's afterId resolution (gate 3.5): the ordered neighbours of
+  // the drop point within the target column.
+  List<Card> findByUserIdAndColumnKeyOrderByPositionAsc(UUID userId, String columnKey);
 }

@@ -6,10 +6,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface XpEventRepository extends JpaRepository<XpEvent, Long> {
+
+  // The idempotency mechanism (xp_events_idempotency_uidx): ON CONFLICT DO
+  // NOTHING lets Postgres silently skip a duplicate key with no exception —
+  // unlike catching a DataIntegrityViolationException, this needs no
+  // savepoint, which HibernateJpaDialect doesn't actually support against a
+  // real Postgres connection (confirmed: NestedTransactionNotSupportedException
+  // in practice, not just in theory). Returns 1 if inserted, 0 if it already
+  // existed — that's what XpService uses to decide whether to touch user_stats.
+  @Modifying
+  @Query(value = "insert into xp_events (user_id, day, delta, reason, ref_id, idempotency_key) "
+      + "values (:userId, :day, :delta, :reason, :refId, :idempotencyKey) "
+      + "on conflict (user_id, idempotency_key) do nothing", nativeQuery = true)
+  int insertIfAbsent(@Param("userId") UUID userId, @Param("day") LocalDate day, @Param("delta") int delta,
+      @Param("reason") String reason, @Param("refId") UUID refId, @Param("idempotencyKey") String idempotencyKey);
 
   // user_stats.xp_total is a clamped cache of this sum (see XpService) — the
   // CHECK (xp_total >= 0) on user_stats means the raw, possibly negative,

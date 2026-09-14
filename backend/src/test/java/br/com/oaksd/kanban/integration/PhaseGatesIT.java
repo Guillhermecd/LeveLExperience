@@ -135,7 +135,7 @@ class PhaseGatesIT {
             ready.countDown();
             awaitUninterruptibly(go);
             try {
-              cardService.move(userId, cardId, new MoveCardRequest("done"), idempotencyKey);
+              cardService.move(userId, cardId, new MoveCardRequest("done", null), idempotencyKey);
             } catch (RuntimeException raced) {
               // A concurrent request may observe the card already in "done"
               // (its own no-op branch) — not the property under test.
@@ -179,7 +179,7 @@ class PhaseGatesIT {
       UUID intruder = createUser("America/Sao_Paulo");
       UUID cardId = createCard(owner, "doing", (short) 0);
 
-      assertThatThrownBy(() -> cardService.move(intruder, cardId, new MoveCardRequest("done"), "key"))
+      assertThatThrownBy(() -> cardService.move(intruder, cardId, new MoveCardRequest("done", null), "key"))
           .isInstanceOf(NotFoundException.class);
     }
 
@@ -204,7 +204,7 @@ class PhaseGatesIT {
       goal.setPosition(1024.0);
       goalRepository.save(goal);
 
-      cardService.move(userId, cardId, new MoveCardRequest("done"), "cascade-key");
+      cardService.move(userId, cardId, new MoveCardRequest("done", null), "cascade-key");
       focusService.start(userId, new StartFocusRequest(cardId, 25));
 
       meService.deleteAccount(userId);
@@ -234,7 +234,7 @@ class PhaseGatesIT {
       double other1Position = cardRepository.findById(other1).orElseThrow().getPosition();
       double other2Position = cardRepository.findById(other2).orElseThrow().getPosition();
 
-      cardService.move(userId, moving, new MoveCardRequest("doing"), "reorder-key");
+      cardService.move(userId, moving, new MoveCardRequest("doing", null), "reorder-key");
 
       assertThat(cardRepository.findById(other1).orElseThrow().getPosition()).isEqualTo(other1Position);
       assertThat(cardRepository.findById(other2).orElseThrow().getPosition()).isEqualTo(other2Position);
@@ -300,10 +300,10 @@ class PhaseGatesIT {
       goal.setPosition(1024.0);
       goalRepository.save(goal);
 
-      cardService.move(userId, card1, new MoveCardRequest("done"), "k1");
-      cardService.move(userId, card2, new MoveCardRequest("done"), "k2");
+      cardService.move(userId, card1, new MoveCardRequest("done", null), "k1");
+      cardService.move(userId, card2, new MoveCardRequest("done", null), "k2");
       goalService.toggle(userId, goal.getId(), new ToggleGoalRequest(true), "k3");
-      cardService.move(userId, card1, new MoveCardRequest("today"), "k4"); // reverses card1: -30
+      cardService.move(userId, card1, new MoveCardRequest("today", null), "k4"); // reverses card1: -30
 
       int sumFromLedger = xpEventRepository.findByUserIdOrderByDayAsc(userId).stream()
           .mapToInt(XpEvent::getDelta)
@@ -324,7 +324,7 @@ class PhaseGatesIT {
       UUID userId = createUser("America/Sao_Paulo");
       UUID onlyCardInToday = createCard(userId, "today", (short) 0);
 
-      cardService.move(userId, onlyCardInToday, new MoveCardRequest("done"), "atomic-key");
+      cardService.move(userId, onlyCardInToday, new MoveCardRequest("done", null), "atomic-key");
 
       List<String> reasons = xpEventRepository.findByUserIdOrderByDayAsc(userId).stream()
           .map(XpEvent::getReason)
@@ -341,7 +341,7 @@ class PhaseGatesIT {
       UUID userId = createUser("Pacific/Kiritimati"); // UTC+14, always ahead of UTC's date
       UUID cardId = createCard(userId, "doing", (short) 0);
 
-      cardService.move(userId, cardId, new MoveCardRequest("done"), "tz-key");
+      cardService.move(userId, cardId, new MoveCardRequest("done", null), "tz-key");
 
       XpEvent event = xpEventRepository.findByUserIdOrderByDayAsc(userId).get(0);
       LocalDate expected = LocalDate.now(ZoneId.of("Pacific/Kiritimati"));
