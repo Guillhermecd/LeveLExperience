@@ -67,9 +67,14 @@ public class StatsService {
     XpRuleEngine.LevelInfo levelInfo = xpRuleEngine.getLevelInfo(xpTotal);
     int streak = xpRuleEngine.isStreakAlive(stats.getLastXpDay(), today) ? stats.getStreak() : 0;
     int[] todayAggregate = byDay.getOrDefault(today, new int[2]);
+    int rawTotal = xpEventRepository.sumDeltaByUserId(userId);
+    LocalDate cleanDayPaid = xpEventRepository.findFirstByUserIdAndReasonOrderByDayDesc(userId, "clean_day")
+        .map(XpEvent::getDay)
+        .orElse(null);
 
-    return new StatsResponse(xpTotal, levelInfo.level(), levelInfo.rank(), levelInfo.xpIntoLevel(),
-        levelInfo.xpForNextLevel(), streak, stats.getLastXpDay(), todayAggregate[0], todayAggregate[1], history);
+    return new StatsResponse(rawTotal, xpTotal, levelInfo.level(), levelInfo.rank(), levelInfo.xpIntoLevel(),
+        levelInfo.xpForNextLevel(), streak, stats.getLastXpDay(), cleanDayPaid, todayAggregate[0],
+        todayAggregate[1], history);
   }
 
   private static int dayDoneDelta(String reason) {

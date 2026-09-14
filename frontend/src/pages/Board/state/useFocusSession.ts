@@ -12,9 +12,9 @@ export function useFocusSession() {
     setPickMinutes('25');
   }
 
-  function startFocus(cardId: string, minutes: number) {
+  function startFocus(cardId: string, sessionId: string, minutes: number) {
     const clamped = Math.min(180, Math.max(1, Math.round(minutes)));
-    setFocus({ cardId, totalSeconds: clamped * 60, leftSeconds: clamped * 60, running: true });
+    setFocus({ cardId, sessionId, totalSeconds: clamped * 60, leftSeconds: clamped * 60, running: true });
     setPick(null);
   }
 

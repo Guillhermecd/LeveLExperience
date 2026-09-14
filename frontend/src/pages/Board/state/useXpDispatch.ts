@@ -5,7 +5,7 @@ import type { BoardAction, DisplayStats, LedgerStats, XpEvent } from '../../../f
 import type { Card, Goal } from '../../../types/board';
 import { applyBoardXpAction } from './boardXp';
 
-const initialStats: LedgerStats = {
+export const initialStats: LedgerStats = {
   rawTotal: 0,
   streak: 0,
   lastXpDay: null,
@@ -26,9 +26,12 @@ function gainText(before: DisplayStats, after: DisplayStats, events: XpEvent[]):
  * Owns the XP ledger and its read-side projection. `dispatch` is the only
  * way card/goal mutations touch XP — see boardXp.ts for the UI-to-reducer
  * bridge, and PLAN.md decision #4 for why the total is never stored raw.
+ * `stats`/`setStats` are exposed (not just `dispatch`) so useBoardState can
+ * seed them from GET /stats on load and restore a snapshot when an
+ * optimistic mutation's request to the server fails.
  */
-export function useXpDispatch() {
-  const [stats, setStats] = useState<LedgerStats>(initialStats);
+export function useXpDispatch(seed: LedgerStats = initialStats) {
+  const [stats, setStats] = useState<LedgerStats>(seed);
   const [gain, setGain] = useState<string | null>(null);
   const gainTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -48,5 +51,5 @@ export function useXpDispatch() {
     return { cards: result.cards, goals: result.goals };
   }
 
-  return { display, gain, dispatch };
+  return { display, gain, dispatch, stats, setStats };
 }
