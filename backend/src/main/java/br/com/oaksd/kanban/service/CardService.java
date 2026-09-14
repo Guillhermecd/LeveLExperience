@@ -40,7 +40,11 @@ public class CardService {
   }
 
   // POST is an upsert by client id (decision #2): a resent create returns
-  // the existing card unchanged instead of erroring or duplicating.
+  // the existing card unchanged instead of erroring or duplicating. The
+  // bare findById is intentional here — it must see a card owned by ANY
+  // user to detect a global id collision before the ownership check below;
+  // findByIdAndUserId would silently miss that case and let two users
+  // collide on the same client-generated UUID.
   @Transactional
   public CardResponse create(UUID userId, CreateCardRequest request) {
     Card existing = cardRepository.findById(request.id()).orElse(null);

@@ -47,6 +47,8 @@ public class SubtaskService {
     Card card = cardRepository.findByIdAndUserId(cardId, userId)
         .orElseThrow(() -> new NotFoundException("Card não encontrado."));
 
+    // Bare findById is intentional (see CardService.create): it must see a
+    // subtask under ANY card to catch a global client-generated id collision.
     Subtask existing = subtaskRepository.findById(request.id()).orElse(null);
     if (existing != null) {
       if (!existing.getCardId().equals(cardId)) {

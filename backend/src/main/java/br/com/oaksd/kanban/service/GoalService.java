@@ -37,6 +37,8 @@ public class GoalService {
     this.xpRuleEngine = xpRuleEngine;
   }
 
+  // Bare findById is intentional (see CardService.create): it must see a
+  // goal owned by ANY user to catch a global client-generated id collision.
   @Transactional
   public GoalResponse create(UUID userId, CreateGoalRequest request) {
     Goal existing = goalRepository.findById(request.id()).orElse(null);

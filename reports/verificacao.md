@@ -1,6 +1,6 @@
 # Relatório de verificação
 
-Gerado em 2026-09-14T13:18:31.090Z
+Gerado em 2026-09-14T13:20:10.592Z
 
 **Situação: APROVADO** — 88/88 aprovados
 
@@ -74,10 +74,10 @@ Gerado em 2026-09-14T13:18:31.090Z
 | | Cenário | ms |
 |---|---|---|
 | ✅ | the displayed total is never negative | 1 |
-| ✅ | no event has a zero delta | 1 |
-| ✅ | the raw total is always the ledger sum plus the opening balance | 0 |
+| ✅ | no event has a zero delta | 2 |
+| ✅ | the raw total is always the ledger sum plus the opening balance | 1 |
 | ✅ | applying zero actions never emits an event | 1 |
-| ✅ | the level is always derivable from the displayed total | 0 |
+| ✅ | the level is always derivable from the displayed total | 1 |
 
 ### reducer is pure — 1/1
 
@@ -88,88 +88,88 @@ Gerado em 2026-09-14T13:18:31.090Z
 
 ## Backend (JUnit / Surefire)
 
-**33/33 aprovados** · 2.40s
+**33/33 aprovados** · 2.52s
 
 ### AuthControllerTest — 4/4
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | register_withValidBody_returns201 | 585 |
-| ✅ | forgotPassword_alwaysReturns204 | 16 |
-| ✅ | register_withBlankEmail_returns400 | 72 |
-| ✅ | login_withWrongCredentials_returns401 | 22 |
+| ✅ | register_withValidBody_returns201 | 596 |
+| ✅ | forgotPassword_alwaysReturns204 | 20 |
+| ✅ | register_withBlankEmail_returns400 | 122 |
+| ✅ | login_withWrongCredentials_returns401 | 39 |
 
 ### AuthServiceTest — 6/6
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | login_ratelimited_neverReachesTheDatabase | 827 |
-| ✅ | register_savesUserStatsAndSendsVerificationEmail | 20 |
-| ✅ | register_propagatesInviteRejectionWithoutSendingEmail | 6 |
+| ✅ | login_ratelimited_neverReachesTheDatabase | 867 |
+| ✅ | register_savesUserStatsAndSendsVerificationEmail | 18 |
+| ✅ | register_propagatesInviteRejectionWithoutSendingEmail | 4 |
 | ✅ | resetPassword_revokesEverySessionForTheUser | 5 |
-| ✅ | login_unknownEmail_throwsUnauthorizedWithoutLeakingWhichFieldFailed | 4 |
-| ✅ | login_wrongPassword_throwsUnauthorizedWithSameMessageAsUnknownEmail | 5 |
+| ✅ | login_unknownEmail_throwsUnauthorizedWithoutLeakingWhichFieldFailed | 7 |
+| ✅ | login_wrongPassword_throwsUnauthorizedWithSameMessageAsUnknownEmail | 4 |
 
 ### BoardServiceTest — 2/2
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | getBoard_withNoCards_skipsTheSubtaskQueryEntirely | 310 |
-| ✅ | getBoard_withMultipleCards_queriesSubtasksExactlyOnce | 6 |
+| ✅ | getBoard_withNoCards_skipsTheSubtaskQueryEntirely | 306 |
+| ✅ | getBoard_withMultipleCards_queriesSubtasksExactlyOnce | 5 |
 
 ### CardServiceTest — 4/4
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | create_withUnseenId_appendsAfterTheCurrentColumnMax | 98 |
-| ✅ | delete_withAnotherUsersCard_throwsNotFoundNeverConflict | 8 |
+| ✅ | create_withUnseenId_appendsAfterTheCurrentColumnMax | 77 |
+| ✅ | delete_withAnotherUsersCard_throwsNotFoundNeverConflict | 9 |
 | ✅ | create_withIdOwnedByAnotherUser_throwsConflict | 8 |
-| ✅ | create_withIdAlreadyOwnedByCaller_isIdempotentAndDoesNotSaveAgain | 5 |
+| ✅ | create_withIdAlreadyOwnedByCaller_isIdempotentAndDoesNotSaveAgain | 6 |
 
 ### FocusServiceTest — 5/5
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | start_withAnAlreadyActiveSession_throwsConflict | 101 |
-| ✅ | finish_completed_settlesFocusXpFromServerElapsedTime | 9 |
-| ✅ | start_withAnotherUsersCard_throwsNotFound | 4 |
-| ✅ | finish_abandoned_settlesNoXp | 4 |
-| ✅ | finish_onAlreadyTerminalSession_throwsConflict | 4 |
+| ✅ | start_withAnAlreadyActiveSession_throwsConflict | 115 |
+| ✅ | finish_completed_settlesFocusXpFromServerElapsedTime | 10 |
+| ✅ | start_withAnotherUsersCard_throwsNotFound | 6 |
+| ✅ | finish_abandoned_settlesNoXp | 5 |
+| ✅ | finish_onAlreadyTerminalSession_throwsConflict | 7 |
 
 ### GoalServiceTest — 4/4
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | delete_withAnotherUsersGoal_throwsNotFound | 6 |
-| ✅ | create_withUnseenId_appendsAfterTheCurrentScopeMax | 6 |
-| ✅ | create_withIdOwnedByAnotherUser_throwsConflict | 5 |
-| ✅ | create_withIdAlreadyOwnedByCaller_isIdempotentAndDoesNotSaveAgain | 4 |
+| ✅ | delete_withAnotherUsersGoal_throwsNotFound | 7 |
+| ✅ | create_withUnseenId_appendsAfterTheCurrentScopeMax | 7 |
+| ✅ | create_withIdOwnedByAnotherUser_throwsConflict | 7 |
+| ✅ | create_withIdAlreadyOwnedByCaller_isIdempotentAndDoesNotSaveAgain | 5 |
 
 ### MeServiceTest — 3/3
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | export_onUnknownUser_throwsNotFound | 138 |
-| ✅ | deleteAccount_removesTheUserRow_cascadeHandlesTheRest | 11 |
-| ✅ | deleteAccount_onUnknownUser_throwsNotFound | 5 |
+| ✅ | export_onUnknownUser_throwsNotFound | 158 |
+| ✅ | deleteAccount_removesTheUserRow_cascadeHandlesTheRest | 3 |
+| ✅ | deleteAccount_onUnknownUser_throwsNotFound | 4 |
 
 ### StatsServiceTest — 2/2
 
 | | Cenário | ms |
 |---|---|---|
 | ✅ | getStats_withStaleLastXpDay_showsStreakZero | 17 |
-| ✅ | getStats_derivesLevelAndTodayFromTheLedger_neverFromStoredTotals | 43 |
+| ✅ | getStats_derivesLevelAndTodayFromTheLedger_neverFromStoredTotals | 36 |
 
 ### SubtaskServiceTest — 2/2
 
 | | Cenário | ms |
 |---|---|---|
 | ✅ | update_onNonExistentSubtask_throwsNotFound | 9 |
-| ✅ | update_onSubtaskOfAnotherUsersCard_throwsNotFound | 7 |
+| ✅ | update_onSubtaskOfAnotherUsersCard_throwsNotFound | 6 |
 
 ### XpRulesTableTest — 1/1
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | everyScenarioMatchesTheSharedTable | 32 |
+| ✅ | everyScenarioMatchesTheSharedTable | 26 |
 
