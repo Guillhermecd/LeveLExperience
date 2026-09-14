@@ -14,16 +14,27 @@ Atualizar a cada fase que adiciona ou remove suíte.
 | Suíte | Onde | Cobre | Cenários |
 |---|---|---|---|
 | XP rules (reducer) | `frontend/src/features/kanban/xpRules.spec.ts` | `applyAction`/`applyActions`, tabela de níveis, invariantes, pureza do reducer | 55 — 37 cenários de `xp-rules.json` + 11 de tabela de nível + 5 invariantes + 1 de pureza |
+| Auth service | `backend/src/test/java/.../service/AuthServiceTest.java` | Register (grava `user_stats`, envia verificação), login (mensagem igual para e-mail inexistente e senha errada), rate limit bloqueia antes do banco, reset de senha revoga todas as sessões | 6 |
+| Auth controller (slice) | `backend/src/test/java/.../controller/AuthControllerTest.java` | Roteamento, validação de request, mapeamento de erro (401/400/204) — sem filtros de segurança | 4 |
+| Card service | `backend/src/test/java/.../service/CardServiceTest.java` | Criação anexa no fim da coluna (gap de position), POST idempotente por id do cliente, conflito se o id já é de outro usuário, delete de card alheio dá 404 | 4 |
+| Subtask service | `backend/src/test/java/.../service/SubtaskServiceTest.java` | Subtarefa não tem `user_id` — posse vem do card; subtarefa de card alheio (ou inexistente) dá 404, nunca 403 | 2 |
+| Board service | `backend/src/test/java/.../service/BoardServiceTest.java` | `GET /board` busca subtarefas de todos os cards em 1 query só (nunca N+1); board sem cards não dispara essa query | 2 |
+| Goal service | `backend/src/test/java/.../service/GoalServiceTest.java` | Mesma forma do `CardServiceTest`, escopado por `scope` em vez de `column_key` | 4 |
 
-Rodar: `cd frontend && npm run test` (ou `npm run test:report` para gerar
-`reports/verificacao.md`).
+Rodar frontend: `cd frontend && npm run test` (ou `npm run test:report` para
+gerar `reports/verificacao.md`).
+Rodar backend: `cd backend && ./mvnw test` (relatório Surefire em
+`backend/target/surefire-reports/` — ainda não incorporado ao
+`reports/verificacao.md`, que hoje só cobre o Vitest; ver nota abaixo).
 
 **Planejado, ainda não existe:**
 
 - `XpRulesTableTest` (JUnit) — mesma tabela `xp-rules.json`, contra o
-  service Java. Fase 3.
-- Testes de service isolados (`CardServiceTest`, `GoalServiceTest`, ...) à
-  medida que a Fase 3 cria os services.
+  service Java. Entra na etapa `move-xp`, quando existir um `XpService`.
+
+**Débito:** `frontend/scripts/report.mjs` só lê o resultado do Vitest.
+`reports/verificacao.md` não reflete o resultado do Surefire — rodar
+`./mvnw test` separadamente até isso ser unificado.
 
 ## Integração
 

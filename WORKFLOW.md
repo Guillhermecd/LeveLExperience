@@ -23,10 +23,25 @@ Etapa dentro de uma fase grande (a 3 tem sete blocos) ganha branch própria a
 partir da branch da fase, não da `main`:
 
 ```
+fase/3-backend/scaffold
 fase/3-backend/auth
-fase/3-backend/cards-e-move
+fase/3-backend/cards-crud
+fase/3-backend/move-xp
 fase/3-backend/foco
 ```
+
+**Cuidado com o git:** uma ref não pode ser folha (`fase/3-backend`) e
+diretório (`fase/3-backend/auth`) ao mesmo tempo — o git recusa criar a
+segunda enquanto a primeira existir. Por isso a própria fase 3 não vira uma
+branch com esse nome nu; a primeira etapa (scaffold) já nasce com nome
+aninhado (`fase/3-backend/scaffold`), nunca `fase/3-backend` sozinho.
+
+**Etapas encadeiam, não são irmãs.** Cada etapa nasce da etapa anterior, não
+de `fase/3-backend/scaffold` direto — `cards-e-move` precisa do `User`, do
+`SecurityConfig` e do `@CurrentUser` que `auth` construiu; `foco` vai
+precisar do que `cards-e-move` construir. Confirmar a base antes de criar a
+branch (`git switch <etapa-anterior> && git switch -c <nova-etapa>`), não
+assumir que a base é sempre a raiz da fase.
 
 Correção fora de fase:
 

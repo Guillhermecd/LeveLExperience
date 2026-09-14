@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kanban
+      POSTGRES_USER: kanban
+      POSTGRES_PASSWORD: kanban
+    ports:
+      # Host 5440 -> container 5432: this machine runs several unrelated
+      # dev stacks, each with its own Postgres on 5432-5442. Adjust
+      # SPRING_DATASOURCE_URL if 5440 collides on yours.
+      - "5440:5432"
+    volumes:
+      - kanban-postgres-data:/var/lib/postgresql/data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  kanban-postgres-data:
