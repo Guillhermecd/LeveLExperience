@@ -1,15 +1,20 @@
 package br.com.oaksd.kanban.service;
 
 import br.com.oaksd.kanban.dto.request.CreateSubtaskRequest;
+import br.com.oaksd.kanban.dto.request.ToggleSubtaskRequest;
 import br.com.oaksd.kanban.dto.request.UpdateSubtaskRequest;
 import br.com.oaksd.kanban.dto.response.SubtaskResponse;
 import br.com.oaksd.kanban.entity.Card;
 import br.com.oaksd.kanban.entity.Subtask;
+import br.com.oaksd.kanban.entity.User;
 import br.com.oaksd.kanban.exception.ConflictException;
 import br.com.oaksd.kanban.exception.NotFoundException;
 import br.com.oaksd.kanban.mapper.SubtaskMapper;
 import br.com.oaksd.kanban.repository.CardRepository;
 import br.com.oaksd.kanban.repository.SubtaskRepository;
+import br.com.oaksd.kanban.repository.UserRepository;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,15 +24,22 @@ public class SubtaskService {
 
   private final SubtaskRepository subtaskRepository;
   private final CardRepository cardRepository;
+  private final UserRepository userRepository;
   private final PositionService positionService;
   private final SubtaskMapper subtaskMapper;
+  private final XpService xpService;
+  private final XpRuleEngine xpRuleEngine;
 
   public SubtaskService(SubtaskRepository subtaskRepository, CardRepository cardRepository,
-      PositionService positionService, SubtaskMapper subtaskMapper) {
+      UserRepository userRepository, PositionService positionService, SubtaskMapper subtaskMapper,
+      XpService xpService, XpRuleEngine xpRuleEngine) {
     this.subtaskRepository = subtaskRepository;
     this.cardRepository = cardRepository;
+    this.userRepository = userRepository;
     this.positionService = positionService;
     this.subtaskMapper = subtaskMapper;
+    this.xpService = xpService;
+    this.xpRuleEngine = xpRuleEngine;
   }
 
   @Transactional
@@ -65,6 +77,27 @@ public class SubtaskService {
   public void delete(UUID userId, UUID subtaskId) {
     Subtask subtask = findOwned(userId, subtaskId);
     subtaskRepository.delete(subtask);
+  }
+
+  // Checking awards XP; unchecking never reverses it (PLAN.md decision —
+  // subtask +5, no reversal, unlike card/goal done-undone pairs).
+  @Transactional
+  public SubtaskResponse toggle(UUID userId, UUID subtaskId, ToggleSubtaskRequest request, String idempotencyKey) {
+    Subtask subtask = findOwned(userId, subtaskId);
+    if (subtask.isDone() == request.done()) {
+      return subtaskMapper.toResponse(subtask);
+    }
+    subtask.setDone(request.done());
+    subtaskRepository.save(subtask);
+
+    if (request.done()) {
+      User user = userRepository.findById(userId)
+          .orElseThrow(() -> new NotFoundException("Usuário não encontrado."));
+      LocalDate today = LocalDate.now(ZoneId.of(user.getTimezone()));
+      xpService.settle(userId, "subtask_done", xpRuleEngine.subtaskXp(), subtask.getId(), idempotencyKey, today);
+    }
+
+    return subtaskMapper.toResponse(subtask);
   }
 
   // Subtasks have no user_id — ownership is the parent card's, so a subtask

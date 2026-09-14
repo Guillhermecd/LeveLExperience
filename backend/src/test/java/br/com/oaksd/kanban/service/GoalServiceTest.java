@@ -13,6 +13,7 @@ import br.com.oaksd.kanban.exception.ConflictException;
 import br.com.oaksd.kanban.exception.NotFoundException;
 import br.com.oaksd.kanban.mapper.GoalMapper;
 import br.com.oaksd.kanban.repository.GoalRepository;
+import br.com.oaksd.kanban.repository.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +26,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class GoalServiceTest {
 
   @Mock private GoalRepository goalRepository;
+  @Mock private UserRepository userRepository;
   @Mock private GoalMapper goalMapper;
+  @Mock private XpService xpService;
 
   private GoalService goalService;
 
   @BeforeEach
   void setUp() {
-    goalService = new GoalService(goalRepository, new PositionService(), goalMapper);
+    goalService = new GoalService(goalRepository, userRepository, new PositionService(), goalMapper, xpService,
+        new XpRuleEngine());
   }
 
   @Test

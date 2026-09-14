@@ -9,6 +9,7 @@ import br.com.oaksd.kanban.exception.NotFoundException;
 import br.com.oaksd.kanban.mapper.SubtaskMapper;
 import br.com.oaksd.kanban.repository.CardRepository;
 import br.com.oaksd.kanban.repository.SubtaskRepository;
+import br.com.oaksd.kanban.repository.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,13 +23,16 @@ class SubtaskServiceTest {
 
   @Mock private SubtaskRepository subtaskRepository;
   @Mock private CardRepository cardRepository;
+  @Mock private UserRepository userRepository;
   @Mock private SubtaskMapper subtaskMapper;
+  @Mock private XpService xpService;
 
   private SubtaskService subtaskService;
 
   @BeforeEach
   void setUp() {
-    subtaskService = new SubtaskService(subtaskRepository, cardRepository, new PositionService(), subtaskMapper);
+    subtaskService = new SubtaskService(subtaskRepository, cardRepository, userRepository, new PositionService(),
+        subtaskMapper, xpService, new XpRuleEngine());
   }
 
   // Decision #12: a subtask that exists but belongs to someone else's card

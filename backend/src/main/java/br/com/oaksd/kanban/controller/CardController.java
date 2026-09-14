@@ -1,6 +1,7 @@
 package br.com.oaksd.kanban.controller;
 
 import br.com.oaksd.kanban.dto.request.CreateCardRequest;
+import br.com.oaksd.kanban.dto.request.MoveCardRequest;
 import br.com.oaksd.kanban.dto.request.UpdateCardRequest;
 import br.com.oaksd.kanban.dto.response.CardResponse;
 import br.com.oaksd.kanban.security.CurrentUser;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +39,13 @@ public class CardController {
   public CardResponse update(@CurrentUser UUID userId, @PathVariable UUID id,
       @Valid @RequestBody UpdateCardRequest request) {
     return cardService.update(userId, id, request);
+  }
+
+  @PostMapping("/{id}/move")
+  public CardResponse move(@CurrentUser UUID userId, @PathVariable UUID id,
+      @Valid @RequestBody MoveCardRequest request,
+      @RequestHeader("Idempotency-Key") String idempotencyKey) {
+    return cardService.move(userId, id, request, idempotencyKey);
   }
 
   @DeleteMapping("/{id}")

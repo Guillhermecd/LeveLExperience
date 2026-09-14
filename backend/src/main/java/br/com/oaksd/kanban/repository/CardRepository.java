@@ -13,4 +13,6 @@ public interface CardRepository extends JpaRepository<Card, UUID> {
   Optional<Card> findByIdAndUserId(UUID id, UUID userId);
 
   Optional<Card> findTopByUserIdAndColumnKeyOrderByPositionDesc(UUID userId, String columnKey);
+
+  long countByUserIdAndColumnKey(UUID userId, String columnKey);
 }

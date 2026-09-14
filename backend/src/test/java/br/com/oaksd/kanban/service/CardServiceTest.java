@@ -13,6 +13,7 @@ import br.com.oaksd.kanban.exception.ConflictException;
 import br.com.oaksd.kanban.exception.NotFoundException;
 import br.com.oaksd.kanban.mapper.CardMapper;
 import br.com.oaksd.kanban.repository.CardRepository;
+import br.com.oaksd.kanban.repository.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +26,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CardServiceTest {
 
   @Mock private CardRepository cardRepository;
+  @Mock private UserRepository userRepository;
   @Mock private CardMapper cardMapper;
+  @Mock private XpService xpService;
 
   private CardService cardService;
 
   @BeforeEach
   void setUp() {
-    cardService = new CardService(cardRepository, new PositionService(), cardMapper);
+    cardService = new CardService(cardRepository, userRepository, new PositionService(), cardMapper, xpService,
+        new XpRuleEngine());
   }
 
   @Test
