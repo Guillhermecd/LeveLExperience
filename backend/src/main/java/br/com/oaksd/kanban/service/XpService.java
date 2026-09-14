@@ -16,14 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class XpService {
 
-  private final XpEventInserter xpEventInserter;
   private final XpEventRepository xpEventRepository;
   private final UserStatsRepository userStatsRepository;
   private final XpRuleEngine xpRuleEngine;
 
-  public XpService(XpEventInserter xpEventInserter, XpEventRepository xpEventRepository,
-      UserStatsRepository userStatsRepository, XpRuleEngine xpRuleEngine) {
-    this.xpEventInserter = xpEventInserter;
+  public XpService(XpEventRepository xpEventRepository, UserStatsRepository userStatsRepository,
+      XpRuleEngine xpRuleEngine) {
     this.xpEventRepository = xpEventRepository;
     this.userStatsRepository = userStatsRepository;
     this.xpRuleEngine = xpRuleEngine;
@@ -31,8 +29,11 @@ public class XpService {
 
   @Transactional
   public void settle(UUID userId, String reason, int delta, UUID refId, String idempotencyKey, LocalDate day) {
-    boolean inserted = xpEventInserter.insertIfAbsent(userId, reason, delta, refId, idempotencyKey, day);
-    if (!inserted) {
+    // ON CONFLICT DO NOTHING (xp_events_idempotency_uidx): a duplicate key
+    // is silently skipped by Postgres, no exception, no savepoint needed —
+    // see XpEventRepository.insertIfAbsent for why that matters.
+    int inserted = xpEventRepository.insertIfAbsent(userId, day, delta, reason, refId, idempotencyKey);
+    if (inserted == 0) {
       // Same key already recorded (retry, double click, duplicated tab): the
       // ledger and user_stats already reflect this event, nothing to redo.
       return;

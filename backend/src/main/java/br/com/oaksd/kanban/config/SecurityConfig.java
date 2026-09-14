@@ -32,6 +32,12 @@ public class SecurityConfig {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**").permitAll()
+            // Without this, an uncaught exception on an authenticated request
+            // forwards internally to /error, which itself requires auth again
+            // (the forward doesn't reliably carry the SecurityContext) — the
+            // real 500 gets masked as an empty 403 (see XpService.settle's
+            // NestedTransactionNotSupportedException incident).
+            .requestMatchers("/error").permitAll()
             .anyRequest().authenticated())
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
