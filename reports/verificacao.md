@@ -1,14 +1,25 @@
 # Relatório de verificação
 
-Gerado em 2026-09-14T13:20:10.592Z
+Gerado em 2026-09-14T18:36:54.582Z
 
-**Situação: APROVADO** — 88/88 aprovados
+**Situação: APROVADO** — 94/94 aprovados
 
 ---
 
 ## Frontend (Vitest)
 
-**55/55 aprovados** · 0.01s
+**61/61 aprovados** · 0.03s
+
+### apiRequest — 6/6
+
+| | Cenário | ms |
+|---|---|---|
+| ✅ | never sends an Idempotency-Key on a GET request | 17 |
+| ✅ | sends a freshly generated Idempotency-Key on a mutating request | 1 |
+| ✅ | retries after a 401 with the SAME Idempotency-Key it used on the first attempt | 2 |
+| ✅ | does not retry a 401 on auth endpoints (skipAuthRetry) | 1 |
+| ✅ | throws ApiError with the parsed message on a non-2xx response | 1 |
+| ✅ | tolerates a non-JSON error body (e.g. a missing-header 400 from Spring defaults) | 1 |
 
 ### XP rules (table shared with the backend) — 38/38
 
@@ -73,11 +84,11 @@ Gerado em 2026-09-14T13:20:10.592Z
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | the displayed total is never negative | 1 |
-| ✅ | no event has a zero delta | 2 |
-| ✅ | the raw total is always the ledger sum plus the opening balance | 1 |
-| ✅ | applying zero actions never emits an event | 1 |
-| ✅ | the level is always derivable from the displayed total | 1 |
+| ✅ | the displayed total is never negative | 0 |
+| ✅ | no event has a zero delta | 1 |
+| ✅ | the raw total is always the ledger sum plus the opening balance | 0 |
+| ✅ | applying zero actions never emits an event | 0 |
+| ✅ | the level is always derivable from the displayed total | 0 |
 
 ### reducer is pure — 1/1
 
