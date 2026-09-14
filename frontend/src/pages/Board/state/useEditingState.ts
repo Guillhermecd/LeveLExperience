@@ -1,15 +1,28 @@
 import { useState } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
-import type { Card, Goal, GoalScope } from '../../../types/board';
-import * as cardActions from './cardActions';
-import * as goalActions from './goalActions';
+import type { BoardColumn, Card, Goal, GoalScope } from '../../../types/board';
+
+type Callbacks = {
+  onCommitCardEdit: (cardId: string, title: string) => void;
+  onCommitAddCard: (columnKey: BoardColumn, title: string) => void;
+  onAddSubtask: (cardId: string, title: string) => void;
+  onCommitGoalEdit: (goalId: string, title: string) => void;
+  onCommitAddGoal: (scope: GoalScope, title: string) => void;
+};
 
 /**
  * Shared "one thing being added/edited at a time" state for both the flow
  * columns and the goal columns — the handoff enforces this as a single UI
- * rule, so it is one state pair, not two per section.
+ * rule, so it is one state pair, not two per section. Owns only the draft
+ * text and which row is open; committing a draft delegates to useBoardState,
+ * which applies it locally and fires the matching API call.
  */
-export function useEditingState(setCards: Dispatch<SetStateAction<Card[]>>, setGoals: Dispatch<SetStateAction<Goal[]>>) {
+export function useEditingState({
+  onCommitCardEdit,
+  onCommitAddCard,
+  onAddSubtask,
+  onCommitGoalEdit,
+  onCommitAddGoal,
+}: Callbacks) {
   const [adding, setAdding] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [editing, setEditing] = useState<string | null>(null);
@@ -25,7 +38,7 @@ export function useEditingState(setCards: Dispatch<SetStateAction<Card[]>>, setG
 
   function commitCardEdit() {
     const value = editDraft.trim();
-    if (editing && value) setCards((cs) => cardActions.updateCardTitle(cs, editing, value));
+    if (editing && value) onCommitCardEdit(editing, value);
     setEditing(null);
     setEditDraft('');
   }
@@ -41,9 +54,9 @@ export function useEditingState(setCards: Dispatch<SetStateAction<Card[]>>, setG
     setEditing(null);
   }
 
-  function commitAddCard(columnKey: Card['columnKey']) {
+  function commitAddCard(columnKey: BoardColumn) {
     const value = draft.trim();
-    if (value) setCards((cs) => cardActions.addCard(cs, columnKey, value));
+    if (value) onCommitAddCard(columnKey, value);
     setAdding(null);
     setDraft('');
   }
@@ -61,7 +74,7 @@ export function useEditingState(setCards: Dispatch<SetStateAction<Card[]>>, setG
   function addSubtask(cardId: string) {
     const value = subDraft.trim();
     if (!value) return;
-    setCards((cs) => cardActions.addSubtask(cs, cardId, value));
+    onAddSubtask(cardId, value);
     setSubDraft('');
   }
 
@@ -72,14 +85,14 @@ export function useEditingState(setCards: Dispatch<SetStateAction<Card[]>>, setG
 
   function commitGoalEdit() {
     const value = editDraft.trim();
-    if (editing && value) setGoals((gs) => goalActions.updateGoalTitle(gs, editing, value));
+    if (editing && value) onCommitGoalEdit(editing, value);
     setEditing(null);
     setEditDraft('');
   }
 
   function commitAddGoal(scope: GoalScope) {
     const value = draft.trim();
-    if (value) setGoals((gs) => goalActions.addGoal(gs, scope, value));
+    if (value) onCommitAddGoal(scope, value);
     setAdding(null);
     setDraft('');
   }

@@ -1,5 +1,6 @@
 import { message } from 'antd';
 import { useEffect, useState } from 'react';
+import { v4 as uuid } from 'uuid';
 import { ApiError } from '../../../api/api';
 import * as boardApi from '../../../api/modules/board';
 import * as cardsApi from '../../../api/modules/cards';
@@ -9,7 +10,7 @@ import type { StatsDto } from '../../../api/modules/stats';
 import * as statsApi from '../../../api/modules/stats';
 import * as subtasksApi from '../../../api/modules/subtasks';
 import type { LedgerStats } from '../../../features/kanban/types';
-import type { BoardColumn, Card, DayHistoryEntry, Goal } from '../../../types/board';
+import type { BoardColumn, Card, DayHistoryEntry, Goal, GoalScope } from '../../../types/board';
 import * as cardActions from './cardActions';
 import * as goalActions from './goalActions';
 import { useEditingState } from './useEditingState';
@@ -37,13 +38,12 @@ function errorMessage(error: unknown): string {
 }
 
 /**
- * Card/goal title, tags, position and add/remove/edit stay local UI state
- * for now (cardActions.ts / goalActions.ts) — CRUD wiring to the API is a
- * follow-up etapa. Anything that awards or reverses XP — move, toggle
- * goal/subtask, finish focus — applies through the reducer immediately
- * (PLAN.md "UI otimista"), fires the matching request, and rolls the
- * snapshot back if that request fails (GATES.md 4.4). A 409 on /move
- * reloads the board instead of rolling back (GATES.md 4.5).
+ * Every mutation applies to local state immediately (PLAN.md "UI otimista"),
+ * then fires the matching request; a failure reverts the cards/goals/stats
+ * snapshot and shows an error (GATES.md 4.4). A 409 on /move reloads the
+ * board instead of reverting (GATES.md 4.5). Card/goal ids are generated
+ * client-side (PLAN.md decision #2) so the optimistic row and the request
+ * body always agree on identity.
  */
 export function useBoardState() {
   const [cards, setCards] = useState<Card[]>([]);
@@ -52,7 +52,6 @@ export function useBoardState() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const xp = useXpDispatch(initialStats);
-  const editingState = useEditingState(setCards, setGoals);
   const focusSession = useFocusSession();
 
   useEffect(() => {
@@ -167,6 +166,95 @@ export function useBoardState() {
     );
   }
 
+  async function createCard(columnKey: BoardColumn, title: string) {
+    const id = uuid();
+    await withRollback(
+      () => setCards((cs) => cardActions.addCard(cs, columnKey, title, id)),
+      () => cardsApi.createCard({ id, columnKey, title, priority: 0, tag: -1 }),
+    );
+  }
+
+  async function updateCardTitle(cardId: string, title: string) {
+    const card = cards.find((c) => c.id === cardId);
+    if (!card) return;
+    await withRollback(
+      () => setCards((cs) => cardActions.updateCardTitle(cs, cardId, title)),
+      () => cardsApi.updateCard(cardId, { title, priority: card.priority, tag: card.tag }),
+    );
+  }
+
+  async function cyclePriority(cardId: string) {
+    const nextCards = cardActions.cyclePriority(cards, cardId);
+    const nextCard = nextCards.find((c) => c.id === cardId);
+    if (!nextCard) return;
+    await withRollback(
+      () => setCards(nextCards),
+      () => cardsApi.updateCard(cardId, { title: nextCard.title, priority: nextCard.priority, tag: nextCard.tag }),
+    );
+  }
+
+  async function cycleTag(cardId: string) {
+    const nextCards = cardActions.cycleTag(cards, cardId);
+    const nextCard = nextCards.find((c) => c.id === cardId);
+    if (!nextCard) return;
+    await withRollback(
+      () => setCards(nextCards),
+      () => cardsApi.updateCard(cardId, { title: nextCard.title, priority: nextCard.priority, tag: nextCard.tag }),
+    );
+  }
+
+  async function removeCard(cardId: string) {
+    await withRollback(
+      () => setCards((cs) => cardActions.removeCard(cs, cardId)),
+      () => cardsApi.deleteCard(cardId),
+    );
+  }
+
+  async function addSubtask(cardId: string, title: string) {
+    const id = uuid();
+    await withRollback(
+      () => setCards((cs) => cardActions.addSubtask(cs, cardId, title, id)),
+      () => subtasksApi.createSubtask(cardId, { id, title }),
+    );
+  }
+
+  async function removeSubtask(cardId: string, subtaskId: string) {
+    await withRollback(
+      () => setCards((cs) => cardActions.removeSubtask(cs, cardId, subtaskId)),
+      () => subtasksApi.deleteSubtask(subtaskId),
+    );
+  }
+
+  async function createGoal(scope: GoalScope, title: string) {
+    const id = uuid();
+    await withRollback(
+      () => setGoals((gs) => goalActions.addGoal(gs, scope, title, id)),
+      () => goalsApi.createGoal({ id, scope, title }),
+    );
+  }
+
+  async function updateGoalTitle(goalId: string, title: string) {
+    await withRollback(
+      () => setGoals((gs) => goalActions.updateGoalTitle(gs, goalId, title)),
+      () => goalsApi.updateGoal(goalId, { title }),
+    );
+  }
+
+  async function removeGoal(goalId: string) {
+    await withRollback(
+      () => setGoals((gs) => goalActions.removeGoal(gs, goalId)),
+      () => goalsApi.deleteGoal(goalId),
+    );
+  }
+
+  const editingState = useEditingState({
+    onCommitCardEdit: updateCardTitle,
+    onCommitAddCard: createCard,
+    onAddSubtask: addSubtask,
+    onCommitGoalEdit: updateGoalTitle,
+    onCommitAddGoal: createGoal,
+  });
+
   async function startFocus(cardId: string, minutes: number) {
     try {
       const session = await focusApi.startFocus(cardId, Math.min(180, Math.max(1, Math.round(minutes))));
@@ -222,14 +310,13 @@ export function useBoardState() {
     goalsDoneCount,
     ...editingState,
     ...focusSession,
-    cyclePriority: (cardId: string) => setCards((cs) => cardActions.cyclePriority(cs, cardId)),
-    cycleTag: (cardId: string) => setCards((cs) => cardActions.cycleTag(cs, cardId)),
-    removeCard: (cardId: string) => setCards((cs) => cardActions.removeCard(cs, cardId)),
+    cyclePriority,
+    cycleTag,
+    removeCard,
     toggleSubtask,
-    removeSubtask: (cardId: string, subtaskId: string) =>
-      setCards((cs) => cardActions.removeSubtask(cs, cardId, subtaskId)),
+    removeSubtask,
     toggleGoal,
-    removeGoal: (goalId: string) => setGoals((gs) => goalActions.removeGoal(gs, goalId)),
+    removeGoal,
     moveCard,
     clearDone,
     startFocus,

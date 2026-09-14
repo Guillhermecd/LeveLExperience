@@ -1,6 +1,6 @@
 # Relatório de verificação
 
-Gerado em 2026-09-14T19:50:14.188Z
+Gerado em 2026-09-14T19:53:17.256Z
 
 **Situação: APROVADO** — 94/94 aprovados
 
@@ -14,7 +14,7 @@ Gerado em 2026-09-14T19:50:14.188Z
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | never sends an Idempotency-Key on a GET request | 18 |
+| ✅ | never sends an Idempotency-Key on a GET request | 16 |
 | ✅ | sends a freshly generated Idempotency-Key on a mutating request | 1 |
 | ✅ | retries after a 401 with the SAME Idempotency-Key it used on the first attempt | 1 |
 | ✅ | does not retry a 401 on auth endpoints (skipAuthRetry) | 1 |
@@ -56,7 +56,7 @@ Gerado em 2026-09-14T19:50:14.188Z
 | ✅ | streak-continues | 0 |
 | ✅ | streak-resets-after-gap | 0 |
 | ✅ | streak-once-per-day | 0 |
-| ✅ | streak-not-started-by-reversal | 0 |
+| ✅ | streak-not-started-by-reversal | 1 |
 | ✅ | streak-shown-zero-after-gap | 0 |
 | ✅ | level-up-to-2 | 0 |
 | ✅ | level-3-threshold | 0 |
@@ -85,10 +85,10 @@ Gerado em 2026-09-14T19:50:14.188Z
 | | Cenário | ms |
 |---|---|---|
 | ✅ | the displayed total is never negative | 1 |
-| ✅ | no event has a zero delta | 1 |
+| ✅ | no event has a zero delta | 2 |
 | ✅ | the raw total is always the ledger sum plus the opening balance | 1 |
 | ✅ | applying zero actions never emits an event | 1 |
-| ✅ | the level is always derivable from the displayed total | 0 |
+| ✅ | the level is always derivable from the displayed total | 1 |
 
 ### reducer is pure — 1/1
 

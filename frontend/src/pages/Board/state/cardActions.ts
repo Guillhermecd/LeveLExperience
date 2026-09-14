@@ -30,13 +30,13 @@ export function updateCardTitle(cards: Card[], cardId: string, title: string): C
   return cards.map((c) => (c.id === cardId ? { ...c, title } : c));
 }
 
-export function addCard(cards: Card[], columnKey: BoardColumn, title: string): Card[] {
+export function addCard(cards: Card[], columnKey: BoardColumn, title: string, id: string = uuid()): Card[] {
   const nextPosition =
     Math.max(0, ...cards.filter((c) => c.columnKey === columnKey).map((c) => c.position)) + 1;
   return [
     ...cards,
     {
-      id: uuid(),
+      id,
       columnKey,
       title,
       priority: 0,
@@ -62,13 +62,13 @@ export function removeSubtask(cards: Card[], cardId: string, subtaskId: string):
   );
 }
 
-export function addSubtask(cards: Card[], cardId: string, title: string): Card[] {
+export function addSubtask(cards: Card[], cardId: string, title: string, id: string = uuid()): Card[] {
   return cards.map((c) => {
     if (c.id !== cardId) return c;
     const nextPosition = Math.max(0, ...c.subtasks.map((s) => s.position)) + 1;
     return {
       ...c,
-      subtasks: [...c.subtasks, { id: uuid(), cardId, title, done: false, position: nextPosition }],
+      subtasks: [...c.subtasks, { id, cardId, title, done: false, position: nextPosition }],
     };
   });
 }

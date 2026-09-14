@@ -14,8 +14,8 @@ export function updateGoalTitle(goals: Goal[], goalId: string, title: string): G
   return goals.map((g) => (g.id === goalId ? { ...g, title } : g));
 }
 
-export function addGoal(goals: Goal[], scope: GoalScope, title: string): Goal[] {
+export function addGoal(goals: Goal[], scope: GoalScope, title: string, id: string = uuid()): Goal[] {
   const nextPosition =
     Math.max(0, ...goals.filter((g) => g.scope === scope).map((g) => g.position)) + 1;
-  return [...goals, { id: uuid(), scope, title, done: false, position: nextPosition }];
+  return [...goals, { id, scope, title, done: false, position: nextPosition }];
 }
