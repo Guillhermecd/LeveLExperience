@@ -1,4 +1,5 @@
 import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { createStyles } from 'antd-style';
 import type { KeyboardEvent } from 'react';
 import { color, font, fontSize, radius, space } from '../../../theme/tokens';
@@ -88,6 +89,7 @@ export function BoardColumn({ columnKey, state }: { columnKey: BoardColumnKey; s
         <span className={styles.count}>{cards.length}</span>
       </div>
 
+      <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
       {cards.map((card) => (
         <DraggableTaskCard
           key={card.id}
@@ -112,6 +114,7 @@ export function BoardColumn({ columnKey, state }: { columnKey: BoardColumnKey; s
           onOpenFocusPicker={() => state.openFocusPicker(card.id)}
         />
       ))}
+      </SortableContext>
 
       {isAdding ? (
         <textarea

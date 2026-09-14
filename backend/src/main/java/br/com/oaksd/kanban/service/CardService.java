@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,19 +95,68 @@ public class CardService {
     String previousColumn = card.getColumnKey();
     String targetColumn = request.to();
 
-    if (!previousColumn.equals(targetColumn)) {
-      double position = positionService.appendAfter(
-          cardRepository.findTopByUserIdAndColumnKeyOrderByPositionDesc(userId, targetColumn)
-              .map(Card::getPosition));
-      card.setColumnKey(targetColumn);
-      card.setPosition(position);
-      card.setUpdatedAt(Instant.now());
-      cardRepository.save(card);
+    card.setColumnKey(targetColumn);
+    card.setPosition(resolvePosition(userId, targetColumn, request.afterId(), cardId));
+    card.setUpdatedAt(Instant.now());
+    cardRepository.save(card);
 
+    if (!previousColumn.equals(targetColumn)) {
       settleMoveXp(userId, user, card, previousColumn, targetColumn, idempotencyKey);
     }
 
     return cardMapper.toResponse(card, List.of());
+  }
+
+  // Gate 3.5: insert between afterId and its current successor in the
+  // target column, rebalancing that column first if the gap between them
+  // has collapsed. The moving card is excluded from its own neighbour
+  // search — otherwise a same-column reorder would see its own stale
+  // position as a "neighbour" of itself.
+  private double resolvePosition(UUID userId, String targetColumn, UUID afterId, UUID movingCardId) {
+    List<Card> ordered = cardRepository.findByUserIdAndColumnKeyOrderByPositionAsc(userId, targetColumn).stream()
+        .filter(c -> !c.getId().equals(movingCardId))
+        .toList();
+
+    if (afterId == null) {
+      return ordered.isEmpty() ? positionService.appendAfter(Optional.empty())
+          : positionService.before(ordered.get(0).getPosition());
+    }
+
+    int index = -1;
+    for (int i = 0; i < ordered.size(); i++) {
+      if (ordered.get(i).getId().equals(afterId)) {
+        index = i;
+        break;
+      }
+    }
+    if (index == -1) {
+      throw new NotFoundException("Card de referência não encontrado nesta coluna.");
+    }
+
+    if (index == ordered.size() - 1) {
+      return positionService.appendAfter(Optional.of(ordered.get(index).getPosition()));
+    }
+
+    Card after = ordered.get(index);
+    Card next = ordered.get(index + 1);
+    if (positionService.needsRebalance(after.getPosition(), next.getPosition())) {
+      rebalanceColumn(ordered);
+      after = ordered.get(index);
+      next = ordered.get(index + 1);
+    }
+    return positionService.between(after.getPosition(), next.getPosition());
+  }
+
+  // Renumbers every card in the (already position-ordered) list with a
+  // fresh GAP spacing, mutating the entities in place so the caller's
+  // subsequent position math sees the new values without re-querying.
+  private void rebalanceColumn(List<Card> orderedCards) {
+    double position = PositionService.GAP;
+    for (Card card : orderedCards) {
+      card.setPosition(position);
+      cardRepository.save(card);
+      position += PositionService.GAP;
+    }
   }
 
   private void settleMoveXp(UUID userId, User user, Card card, String previousColumn, String targetColumn,

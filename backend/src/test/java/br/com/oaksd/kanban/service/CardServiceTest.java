@@ -8,12 +8,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import br.com.oaksd.kanban.dto.request.CreateCardRequest;
+import br.com.oaksd.kanban.dto.request.MoveCardRequest;
 import br.com.oaksd.kanban.entity.Card;
-import br.com.oaksd.kanban.exception.ConflictException;
+import br.com.oaksd.kanban.entity.User;
 import br.com.oaksd.kanban.exception.NotFoundException;
+import br.com.oaksd.kanban.exception.ConflictException;
 import br.com.oaksd.kanban.mapper.CardMapper;
 import br.com.oaksd.kanban.repository.CardRepository;
 import br.com.oaksd.kanban.repository.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,5 +93,114 @@ class CardServiceTest {
     when(cardRepository.findByIdAndUserId(cardId, userId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> cardService.delete(userId, cardId)).isInstanceOf(NotFoundException.class);
+  }
+
+  private User aUser(UUID userId) {
+    User user = new User();
+    user.setId(userId);
+    user.setTimezone("America/Sao_Paulo");
+    return user;
+  }
+
+  private Card cardIn(UUID userId, String column, double position) {
+    Card card = new Card();
+    card.setId(UUID.randomUUID());
+    card.setUserId(userId);
+    card.setColumnKey(column);
+    card.setPosition(position);
+    return card;
+  }
+
+  @Test
+  void move_withNoAfterId_insertsBeforeTheCurrentFirstCard() {
+    UUID userId = UUID.randomUUID();
+    Card moving = cardIn(userId, "backlog", 500.0);
+    Card firstInTarget = cardIn(userId, "today", 1024.0);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(aUser(userId)));
+    when(cardRepository.findByIdAndUserId(moving.getId(), userId)).thenReturn(Optional.of(moving));
+    when(cardRepository.findByUserIdAndColumnKeyOrderByPositionAsc(userId, "today"))
+        .thenReturn(List.of(firstInTarget));
+
+    cardService.move(userId, moving.getId(), new MoveCardRequest("today", null), "key-1");
+
+    assertThat(moving.getPosition()).isEqualTo(1024.0 - 1024.0);
+    assertThat(moving.getColumnKey()).isEqualTo("today");
+  }
+
+  @Test
+  void move_withAfterIdAsTheLastCard_appendsAfterIt() {
+    UUID userId = UUID.randomUUID();
+    Card moving = cardIn(userId, "backlog", 500.0);
+    Card last = cardIn(userId, "today", 1024.0);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(aUser(userId)));
+    when(cardRepository.findByIdAndUserId(moving.getId(), userId)).thenReturn(Optional.of(moving));
+    when(cardRepository.findByUserIdAndColumnKeyOrderByPositionAsc(userId, "today")).thenReturn(List.of(last));
+
+    cardService.move(userId, moving.getId(), new MoveCardRequest("today", last.getId()), "key-1");
+
+    assertThat(moving.getPosition()).isEqualTo(1024.0 + 1024.0);
+  }
+
+  @Test
+  void move_withAfterIdBetweenTwoCards_landsOnTheMidpoint() {
+    UUID userId = UUID.randomUUID();
+    Card moving = cardIn(userId, "backlog", 500.0);
+    Card first = cardIn(userId, "today", 1024.0);
+    Card second = cardIn(userId, "today", 2048.0);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(aUser(userId)));
+    when(cardRepository.findByIdAndUserId(moving.getId(), userId)).thenReturn(Optional.of(moving));
+    when(cardRepository.findByUserIdAndColumnKeyOrderByPositionAsc(userId, "today"))
+        .thenReturn(List.of(first, second));
+
+    cardService.move(userId, moving.getId(), new MoveCardRequest("today", first.getId()), "key-1");
+
+    assertThat(moving.getPosition()).isEqualTo(1536.0);
+  }
+
+  @Test
+  void move_withUnknownAfterId_throwsNotFound() {
+    UUID userId = UUID.randomUUID();
+    Card moving = cardIn(userId, "backlog", 500.0);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(aUser(userId)));
+    when(cardRepository.findByIdAndUserId(moving.getId(), userId)).thenReturn(Optional.of(moving));
+    when(cardRepository.findByUserIdAndColumnKeyOrderByPositionAsc(userId, "today")).thenReturn(List.of());
+
+    assertThatThrownBy(() -> cardService.move(userId, moving.getId(),
+        new MoveCardRequest("today", UUID.randomUUID()), "key-1"))
+        .isInstanceOf(NotFoundException.class);
+  }
+
+  @Test
+  void move_withCollapsedGap_rebalancesTheColumnBeforeInserting() {
+    UUID userId = UUID.randomUUID();
+    Card moving = cardIn(userId, "backlog", 500.0);
+    Card first = cardIn(userId, "today", 1024.0);
+    Card second = cardIn(userId, "today", 1024.00001);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(aUser(userId)));
+    when(cardRepository.findByIdAndUserId(moving.getId(), userId)).thenReturn(Optional.of(moving));
+    when(cardRepository.findByUserIdAndColumnKeyOrderByPositionAsc(userId, "today"))
+        .thenReturn(List.of(first, second));
+
+    cardService.move(userId, moving.getId(), new MoveCardRequest("today", first.getId()), "key-1");
+
+    // Rebalanced to GAP/2*GAP, then inserted at the midpoint.
+    assertThat(first.getPosition()).isEqualTo(1024.0);
+    assertThat(second.getPosition()).isEqualTo(2048.0);
+    assertThat(moving.getPosition()).isEqualTo(1536.0);
+  }
+
+  @Test
+  void move_withinTheSameColumn_stillSettlesNoXpForANonDoneTransition() {
+    UUID userId = UUID.randomUUID();
+    Card moving = cardIn(userId, "today", 500.0);
+    Card other = cardIn(userId, "today", 1024.0);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(aUser(userId)));
+    when(cardRepository.findByIdAndUserId(moving.getId(), userId)).thenReturn(Optional.of(moving));
+    when(cardRepository.findByUserIdAndColumnKeyOrderByPositionAsc(userId, "today"))
+        .thenReturn(List.of(other));
+
+    cardService.move(userId, moving.getId(), new MoveCardRequest("today", other.getId()), "key-1");
+
+    verify(xpService, never()).settle(any(), any(), org.mockito.ArgumentMatchers.anyInt(), any(), any(), any());
   }
 }

@@ -18,8 +18,8 @@ export function updateCard(
   return apiRequest(`/api/cards/${cardId}`, { method: 'PATCH', body: input });
 }
 
-export function moveCard(cardId: string, to: BoardColumn): Promise<Card> {
-  return apiRequest(`/api/cards/${cardId}/move`, { method: 'POST', body: { to } });
+export function moveCard(cardId: string, to: BoardColumn, afterId: string | null): Promise<Card> {
+  return apiRequest(`/api/cards/${cardId}/move`, { method: 'POST', body: { to, afterId } });
 }
 
 export function deleteCard(cardId: string): Promise<void> {

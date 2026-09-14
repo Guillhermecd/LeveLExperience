@@ -76,3 +76,34 @@ export function addSubtask(cards: Card[], cardId: string, title: string, id: str
 export function incrementPoms(cards: Card[], cardId: string): Card[] {
   return cards.map((c) => (c.id === cardId ? { ...c, poms: c.poms + 1 } : c));
 }
+
+/**
+ * Repositions `cardId` within the array, right after `afterId` (or at the
+ * start of `targetColumn`'s block when `afterId` is null) — array order is
+ * what BoardColumn.tsx renders, so this is what makes a within-column drag
+ * show up in the right place. Doesn't touch `columnKey`: the reducer
+ * (boardXp.ts) is the one that flips it, since only it knows whether the
+ * transition is real enough to settle XP.
+ */
+export function reorderWithinArray(
+  cards: Card[],
+  cardId: string,
+  afterId: string | null,
+  targetColumn: BoardColumn,
+): Card[] {
+  const moving = cards.find((c) => c.id === cardId);
+  if (!moving) return cards;
+  const rest = cards.filter((c) => c.id !== cardId);
+
+  if (afterId === null) {
+    const firstIndex = rest.findIndex((c) => c.columnKey === targetColumn);
+    return firstIndex === -1
+      ? [...rest, moving]
+      : [...rest.slice(0, firstIndex), moving, ...rest.slice(firstIndex)];
+  }
+
+  const afterIndex = rest.findIndex((c) => c.id === afterId);
+  return afterIndex === -1
+    ? [...rest, moving]
+    : [...rest.slice(0, afterIndex + 1), moving, ...rest.slice(afterIndex + 1)];
+}

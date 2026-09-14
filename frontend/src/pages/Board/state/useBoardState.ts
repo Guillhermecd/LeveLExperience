@@ -105,20 +105,23 @@ export function useBoardState() {
     setGoals((gs) => gs.filter((g) => !g.done));
   }
 
-  async function moveCard(cardId: string, to: BoardColumn) {
+  async function moveCard(cardId: string, to: BoardColumn, afterId: string | null = null) {
     await withRollback(
       () => {
-        const { cards: nextCards, goals: nextGoals } = xp.dispatch(cards, goals, {
+        const { cards: dispatched, goals: nextGoals } = xp.dispatch(cards, goals, {
           type: 'move_card',
           cardId,
           to,
         });
-        setCards(nextCards);
+        // xp.dispatch flips columnKey (and settles XP if the transition is
+        // real); reordering the array is a separate concern — see
+        // cardActions.reorderWithinArray.
+        setCards(cardActions.reorderWithinArray(dispatched, cardId, afterId, to));
         setGoals(nextGoals);
       },
       async () => {
         try {
-          await cardsApi.moveCard(cardId, to);
+          await cardsApi.moveCard(cardId, to, afterId);
         } catch (error) {
           if (error instanceof ApiError && error.status === 409) {
             await reloadBoard();
