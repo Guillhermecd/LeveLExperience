@@ -30,11 +30,12 @@ public class AuthService {
   private final RateLimiter rateLimiter;
   private final PasswordEncoder passwordEncoder;
   private final UserMapper userMapper;
+  private final BoardSeedService boardSeedService;
 
   public AuthService(UserRepository userRepository, UserStatsRepository userStatsRepository,
       InviteService inviteService, TokenService tokenService, EmailService emailService,
       JwtService jwtService, RateLimiter rateLimiter, PasswordEncoder passwordEncoder,
-      UserMapper userMapper) {
+      UserMapper userMapper, BoardSeedService boardSeedService) {
     this.userRepository = userRepository;
     this.userStatsRepository = userStatsRepository;
     this.inviteService = inviteService;
@@ -44,6 +45,7 @@ public class AuthService {
     this.rateLimiter = rateLimiter;
     this.passwordEncoder = passwordEncoder;
     this.userMapper = userMapper;
+    this.boardSeedService = boardSeedService;
   }
 
   @Transactional
@@ -65,6 +67,8 @@ public class AuthService {
     UserStats stats = new UserStats();
     stats.setUserId(user.getId());
     userStatsRepository.save(stats);
+
+    boardSeedService.seed(user.getId());
 
     String verificationToken = tokenService.issueEmailVerificationToken(user.getId());
     emailService.sendVerificationEmail(user.getEmail(), verificationToken);

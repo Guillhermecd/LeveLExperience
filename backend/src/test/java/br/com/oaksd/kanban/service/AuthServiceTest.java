@@ -41,13 +41,14 @@ class AuthServiceTest {
   @Mock private RateLimiter rateLimiter;
   @Mock private PasswordEncoder passwordEncoder;
   @Mock private UserMapper userMapper;
+  @Mock private BoardSeedService boardSeedService;
 
   private AuthService authService;
 
   @BeforeEach
   void setUp() {
     authService = new AuthService(userRepository, userStatsRepository, inviteService, tokenService,
-        emailService, jwtService, rateLimiter, passwordEncoder, userMapper);
+        emailService, jwtService, rateLimiter, passwordEncoder, userMapper, boardSeedService);
   }
 
   @Test
