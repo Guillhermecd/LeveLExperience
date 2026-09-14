@@ -180,6 +180,23 @@
           </annotationProcessorPaths>
         </configuration>
       </plugin>
+      <!--
+        *IT.java (PhaseGatesIT — GATES.md Fase 3) needs a real Postgres via
+        Testcontainers/Docker, so it stays out of `mvn test` (surefire only
+        picks up *Test.java) and runs on `mvn verify` instead.
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
