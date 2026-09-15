@@ -1,11 +1,13 @@
 package br.com.oaksd.kanban.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import br.com.oaksd.kanban.dto.response.UserResponse;
 import br.com.oaksd.kanban.entity.User;
 import br.com.oaksd.kanban.exception.NotFoundException;
 import br.com.oaksd.kanban.mapper.FocusSessionMapper;
@@ -59,6 +61,26 @@ class MeServiceTest {
 
     assertThatThrownBy(() -> meService.deleteAccount(userId)).isInstanceOf(NotFoundException.class);
     verify(userRepository, never()).delete(any());
+  }
+
+  @Test
+  void getProfile_returnsTheMappedUser() {
+    UUID userId = UUID.randomUUID();
+    User user = new User();
+    user.setId(userId);
+    UserResponse response = new UserResponse(userId, "a@b.com", "Ana", "America/Sao_Paulo", true, true);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    when(userMapper.toResponse(user)).thenReturn(response);
+
+    assertThat(meService.getProfile(userId)).isEqualTo(response);
+  }
+
+  @Test
+  void getProfile_onUnknownUser_throwsNotFound() {
+    UUID userId = UUID.randomUUID();
+    when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> meService.getProfile(userId)).isInstanceOf(NotFoundException.class);
   }
 
   @Test

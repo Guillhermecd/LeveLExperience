@@ -1,6 +1,7 @@
 package br.com.oaksd.kanban.controller;
 
 import br.com.oaksd.kanban.dto.response.MeExportResponse;
+import br.com.oaksd.kanban.dto.response.UserResponse;
 import br.com.oaksd.kanban.security.CurrentUser;
 import br.com.oaksd.kanban.service.MeService;
 import java.util.UUID;
@@ -19,6 +20,11 @@ public class MeController {
 
   public MeController(MeService meService) {
     this.meService = meService;
+  }
+
+  @GetMapping
+  public UserResponse me(@CurrentUser UUID userId) {
+    return meService.getProfile(userId);
   }
 
   @GetMapping("/export")

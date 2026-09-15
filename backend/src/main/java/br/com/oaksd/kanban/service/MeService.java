@@ -2,6 +2,7 @@ package br.com.oaksd.kanban.service;
 
 import br.com.oaksd.kanban.dto.response.BoardResponse;
 import br.com.oaksd.kanban.dto.response.MeExportResponse;
+import br.com.oaksd.kanban.dto.response.UserResponse;
 import br.com.oaksd.kanban.dto.response.XpEventResponse;
 import br.com.oaksd.kanban.entity.User;
 import br.com.oaksd.kanban.exception.NotFoundException;
@@ -35,6 +36,16 @@ public class MeService {
     this.focusSessionMapper = focusSessionMapper;
     this.boardService = boardService;
     this.statsService = statsService;
+  }
+
+  // Fase 5 (PLAN.md): the frontend refreshes its cached profile
+  // (name, showGoals) against this on boot instead of trusting only the
+  // login/register payload, which can go stale across a long session.
+  @Transactional(readOnly = true)
+  public UserResponse getProfile(UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("Usuário não encontrado."));
+    return userMapper.toResponse(user);
   }
 
   @Transactional(readOnly = true)
