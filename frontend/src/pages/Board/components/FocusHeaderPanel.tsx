@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style';
-import { color, font, fontSize, radius, space, transition } from '../../../theme/tokens';
+import { blur, color, font, fontSize, radius, space, transition } from '../../../theme/tokens';
 import type { Card, FocusSession } from '../../../types/board';
 
 const useStyles = createStyles(() => ({
@@ -8,10 +8,17 @@ const useStyles = createStyles(() => ({
     padding: `${space.sm3}px ${space.md2}px`,
     border: `1px solid ${color.amber.border}`,
     borderRadius: radius.md1,
-    background: color.panelGradient.focus,
+    background: color.glass.focus,
+    backdropFilter: blur.panelSaturate,
+    WebkitBackdropFilter: blur.panelSaturate,
+    boxShadow: `inset 0 1px 0 ${color.glass.borderStrong}`,
     display: 'flex',
     flexDirection: 'column',
     gap: space.xs2,
+    '@supports not (backdrop-filter: blur(1px))': {
+      // Opaque fallback so the panel stays legible without blur support.
+      background: color.surface.panel,
+    },
   },
   top: {
     display: 'flex',

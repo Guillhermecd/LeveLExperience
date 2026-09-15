@@ -1,5 +1,5 @@
 import { createStyles } from 'antd-style';
-import { color, font, fontSize, radius, space } from '../../../theme/tokens';
+import { blur, color, font, fontSize, radius, space } from '../../../theme/tokens';
 
 const useStyles = createStyles(() => ({
   panel: {
@@ -9,6 +9,12 @@ const useStyles = createStyles(() => ({
     display: 'flex',
     flexDirection: 'column',
     gap: space.xs3,
+    backdropFilter: blur.panelSaturate,
+    WebkitBackdropFilter: blur.panelSaturate,
+    '@supports not (backdrop-filter: blur(1px))': {
+      // Opaque fallback so the panel stays legible without blur support.
+      background: color.surface.panel,
+    },
   },
   label: {
     fontSize: fontSize.xs,
@@ -26,9 +32,9 @@ const useStyles = createStyles(() => ({
 type Variant = 'open' | 'done' | 'goals';
 
 const variantStyle: Record<Variant, { border: string; background: string; label: string; value?: string }> = {
-  open: { border: color.border.column, background: color.surface.panel, label: color.text.label },
-  done: { border: color.lime.border, background: color.lime.surfaceDone, label: color.lime.textMuted, value: color.lime.text },
-  goals: { border: color.violet.border, background: color.violet.surface, label: color.violet.label, value: color.violet.text },
+  open: { border: color.border.column, background: color.glass.panel, label: color.text.label },
+  done: { border: color.lime.border, background: color.glass.done, label: color.lime.textMuted, value: color.lime.text },
+  goals: { border: color.violet.border, background: color.glass.goals, label: color.violet.label, value: color.violet.text },
 };
 
 export function StatPanel({ variant, label, value }: { variant: Variant; label: string; value: number }) {
