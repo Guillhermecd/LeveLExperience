@@ -133,4 +133,36 @@ class AuthServiceTest {
     assertThat(user.getPasswordHash()).isEqualTo("newHash");
     verify(tokenService).revokeAllSessions(userId);
   }
+
+  @Test
+  void changePassword_correctCurrentPassword_updatesHashAndRevokesEverySession() {
+    UUID userId = UUID.randomUUID();
+    User user = new User();
+    user.setPasswordHash("oldHash");
+    when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    when(passwordEncoder.matches("oldPass", "oldHash")).thenReturn(true);
+    when(passwordEncoder.encode("novaSenha123")).thenReturn("newHash");
+
+    authService.changePassword(userId, "oldPass", "novaSenha123");
+
+    assertThat(user.getPasswordHash()).isEqualTo("newHash");
+    verify(userRepository).save(user);
+    verify(tokenService).revokeAllSessions(userId);
+  }
+
+  @Test
+  void changePassword_wrongCurrentPassword_throwsUnauthorizedAndChangesNothing() {
+    UUID userId = UUID.randomUUID();
+    User user = new User();
+    user.setPasswordHash("oldHash");
+    when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    when(passwordEncoder.matches("wrong", "oldHash")).thenReturn(false);
+
+    assertThatThrownBy(() -> authService.changePassword(userId, "wrong", "novaSenha123"))
+        .isInstanceOf(UnauthorizedException.class)
+        .hasMessage("Senha atual incorreta.");
+
+    verify(userRepository, never()).save(any());
+    verify(tokenService, never()).revokeAllSessions(any());
+  }
 }

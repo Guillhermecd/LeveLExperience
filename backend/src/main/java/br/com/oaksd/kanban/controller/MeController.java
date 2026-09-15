@@ -1,9 +1,11 @@
 package br.com.oaksd.kanban.controller;
 
+import br.com.oaksd.kanban.dto.request.ChangePasswordRequest;
 import br.com.oaksd.kanban.dto.request.UpdatePreferencesRequest;
 import br.com.oaksd.kanban.dto.response.MeExportResponse;
 import br.com.oaksd.kanban.dto.response.UserResponse;
 import br.com.oaksd.kanban.security.CurrentUser;
+import br.com.oaksd.kanban.service.AuthService;
 import br.com.oaksd.kanban.service.MeService;
 import jakarta.validation.Valid;
 import java.util.UUID;
@@ -21,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class MeController {
 
   private final MeService meService;
+  private final AuthService authService;
 
-  public MeController(MeService meService) {
+  public MeController(MeService meService, AuthService authService) {
     this.meService = meService;
+    this.authService = authService;
   }
 
   @GetMapping
@@ -34,6 +38,12 @@ public class MeController {
   @PatchMapping
   public UserResponse updatePreferences(@CurrentUser UUID userId, @Valid @RequestBody UpdatePreferencesRequest request) {
     return meService.updatePreferences(userId, request);
+  }
+
+  @PatchMapping("/password")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void changePassword(@CurrentUser UUID userId, @Valid @RequestBody ChangePasswordRequest request) {
+    authService.changePassword(userId, request.currentPassword(), request.newPassword());
   }
 
   @GetMapping("/export")

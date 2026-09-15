@@ -135,6 +135,21 @@ public class AuthService {
     tokenService.revokeAllSessions(userId);
   }
 
+  // Same invalidation as resetPassword (decision #10: a password change must
+  // kill a stolen session too) — including the session that just made this
+  // request, so the client re-authenticates with the new password.
+  @Transactional
+  public void changePassword(UUID userId, String currentPassword, String newPassword) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("Usuário não encontrado."));
+    if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+      throw new UnauthorizedException("Senha atual incorreta.");
+    }
+    user.setPasswordHash(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+    tokenService.revokeAllSessions(userId);
+  }
+
   private AuthResponse issueSession(User user, String userAgent) {
     String accessToken = jwtService.generateAccessToken(user.getId());
     String refreshToken = tokenService.issueRefreshToken(user.getId(), userAgent);
