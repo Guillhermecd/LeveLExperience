@@ -16,7 +16,9 @@ import { FocusModal } from './components/FocusModal';
 const useStyles = createStyles(() => ({
   page: {
     minHeight: '100vh',
-    background: color.bg.headerGradient,
+    position: 'relative',
+    overflow: 'hidden',
+    background: `${color.bg.glassBackdrop}, ${color.bg.headerGradient}`,
     backgroundColor: color.bg.base,
     color: color.text.body,
     fontFamily: font.body,
@@ -24,6 +26,36 @@ const useStyles = createStyles(() => ({
     display: 'flex',
     flexDirection: 'column',
     gap: space.xl3,
+  },
+  // Decorative, not interactive — give the header panels' backdrop-filter
+  // something with color/contrast to actually blur.
+  blobLime: {
+    position: 'absolute',
+    top: -160,
+    right: -120,
+    width: 520,
+    height: 520,
+    borderRadius: '50%',
+    background: color.glass.blobLime,
+    filter: 'blur(80px)',
+    pointerEvents: 'none',
+    // Negative so normal-flow content (unstyled, no z-index of its own)
+    // always paints above these — no need to touch every other child's stacking.
+    zIndex: -1,
+  },
+  blobAmber: {
+    position: 'absolute',
+    top: -100,
+    left: -140,
+    width: 440,
+    height: 440,
+    borderRadius: '50%',
+    background: color.glass.blobAmber,
+    filter: 'blur(80px)',
+    pointerEvents: 'none',
+    // Negative so normal-flow content (unstyled, no z-index of its own)
+    // always paints above these — no need to touch every other child's stacking.
+    zIndex: -1,
   },
   headerRight: {
     display: 'flex',
@@ -68,6 +100,8 @@ export function BoardPage({ name, showGoals = true }: { name?: string; showGoals
 
   return (
     <div className={styles.page}>
+      <div className={styles.blobLime} />
+      <div className={styles.blobAmber} />
       <div className={styles.headerRow}>
         <HeaderGreeting name={displayName} />
         <div className={styles.headerRight}>

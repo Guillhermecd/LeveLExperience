@@ -10,6 +10,11 @@ export const color = {
     base: '#101117',
     headerGradient:
       'radial-gradient(1200px 600px at 15% -10%, #1B2030 0%, #101117 60%)',
+    // Second radial layered behind the header row so the glass panels'
+    // backdrop-filter has color/contrast to actually blur — a flat gradient
+    // alone makes the glass effect invisible.
+    glassBackdrop:
+      'radial-gradient(900px 480px at 82% -6%, #1E2A1A 0%, transparent 55%)',
   },
   surface: {
     column: '#15171E',
@@ -100,6 +105,21 @@ export const color = {
     focus: 'linear-gradient(140deg, #241D12 0%, #16181F 70%)',
     level: 'linear-gradient(140deg, #1C2314 0%, #16181F 70%)',
   },
+  // Glassmorphism surfaces for the header strip only (PLAN.md decision made
+  // 2026-09; a deliberate deviation from the Kanban.dc.html handoff, which
+  // has no glass/blur treatment) — alpha variants of the existing opaque
+  // hues above, never a new palette.
+  glass: {
+    panel: 'rgba(22, 24, 31, 0.55)',
+    focus: 'rgba(36, 29, 18, 0.55)',
+    level: 'rgba(28, 35, 20, 0.55)',
+    done: 'rgba(26, 32, 19, 0.55)',
+    goals: 'rgba(28, 23, 48, 0.55)',
+    border: 'rgba(255, 255, 255, 0.08)',
+    borderStrong: 'rgba(255, 255, 255, 0.14)',
+    blobLime: 'rgba(143, 209, 63, 0.16)',
+    blobAmber: 'rgba(242, 193, 78, 0.12)',
+  },
 } as const;
 
 export const font = {
@@ -177,6 +197,12 @@ export const shadow = {
 
 export const transition = {
   xpBar: 'width 420ms ease',
+} as const;
+
+export const blur = {
+  panel: 'blur(16px)',
+  // saturate keeps colors from washing out under the blur
+  panelSaturate: 'blur(16px) saturate(140%)',
 } as const;
 
 export const zIndex = {
