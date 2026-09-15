@@ -2,6 +2,8 @@ import { message } from 'antd';
 import { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { ApiError } from '../../../api/api';
+import { readBoardCache, writeBoardCache } from '../../../api/boardCache';
+import type { BoardDto } from '../../../api/modules/board';
 import * as boardApi from '../../../api/modules/board';
 import * as cardsApi from '../../../api/modules/cards';
 import * as focusApi from '../../../api/modules/focus';
@@ -9,6 +11,7 @@ import * as goalsApi from '../../../api/modules/goals';
 import type { StatsDto } from '../../../api/modules/stats';
 import * as statsApi from '../../../api/modules/stats';
 import * as subtasksApi from '../../../api/modules/subtasks';
+import { getCurrentUser } from '../../../api/session';
 import type { LedgerStats } from '../../../features/kanban/types';
 import type { BoardColumn, Card, DayHistoryEntry, Goal, GoalScope } from '../../../types/board';
 import * as cardActions from './cardActions';
@@ -46,13 +49,39 @@ function errorMessage(error: unknown): string {
  * body always agree on identity.
  */
 export function useBoardState() {
-  const [cards, setCards] = useState<Card[]>([]);
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [history, setHistory] = useState<DayHistoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Reads whatever the last confirmed server response for this user left
+  // behind (PLAN.md Fase 5 "cache local"), so the board paints immediately
+  // on boot instead of a spinner while GET /board is in flight. The server
+  // is still the source of truth: this is only the initial state.
+  const [cached] = useState(() => {
+    const user = getCurrentUser();
+    return user ? readBoardCache(user.id) : null;
+  });
+  const [cards, setCards] = useState<Card[]>(cached?.cards ?? []);
+  const [goals, setGoals] = useState<Goal[]>(cached?.goals ?? []);
+  const [history, setHistory] = useState<DayHistoryEntry[]>(cached?.history ?? []);
+  const [loading, setLoading] = useState(cached === null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const xp = useXpDispatch(initialStats);
+  const xp = useXpDispatch(cached?.stats ?? initialStats);
   const focusSession = useFocusSession();
+
+  /**
+   * The only place a GET /board + GET /stats response is applied — and so
+   * the only place the cache is written (GATES.md 5.2: the cache must never
+   * become a source of truth, so nothing else may write to it).
+   */
+  function applyBoardPayload(board: BoardDto, stats: StatsDto) {
+    const ledgerStats = toLedgerStats(stats);
+    const dayHistory = toDayHistory(stats);
+    setCards(board.cards);
+    setGoals(board.goals);
+    xp.setStats(ledgerStats);
+    setHistory(dayHistory);
+    const user = getCurrentUser();
+    if (user) {
+      writeBoardCache(user.id, { cards: board.cards, goals: board.goals, history: dayHistory, stats: ledgerStats });
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -60,12 +89,13 @@ export function useBoardState() {
       try {
         const [board, stats] = await Promise.all([boardApi.getBoard(), statsApi.getStats()]);
         if (cancelled) return;
-        setCards(board.cards);
-        setGoals(board.goals);
-        xp.setStats(toLedgerStats(stats));
-        setHistory(toDayHistory(stats));
+        applyBoardPayload(board, stats);
       } catch (error) {
-        if (!cancelled) setLoadError(errorMessage(error));
+        if (cancelled) return;
+        // A cached board is already on screen — don't blank it out on a
+        // failed refresh, just report the failure.
+        if (cached) message.error(errorMessage(error));
+        else setLoadError(errorMessage(error));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -78,10 +108,7 @@ export function useBoardState() {
 
   async function reloadBoard() {
     const [board, stats] = await Promise.all([boardApi.getBoard(), statsApi.getStats()]);
-    setCards(board.cards);
-    setGoals(board.goals);
-    xp.setStats(toLedgerStats(stats));
-    setHistory(toDayHistory(stats));
+    applyBoardPayload(board, stats);
   }
 
   /** Applies `apply` immediately, then runs `request` — reverting the snapshot on failure. */
