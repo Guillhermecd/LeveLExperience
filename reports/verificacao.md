@@ -1,6 +1,6 @@
 # Relatório de verificação
 
-Gerado em 2026-09-15T17:33:11.241Z
+Gerado em 2026-09-15T20:54:52.343Z
 
 **Situação: APROVADO** — 226/226 aprovados
 
@@ -8,108 +8,33 @@ Gerado em 2026-09-15T17:33:11.241Z
 
 ## Frontend (Vitest)
 
-**132/132 aprovados** · 0.14s
+**132/132 aprovados** · 0.16s
 
 ### apiRequest — 6/6
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | never sends an Idempotency-Key on a GET request | 28 |
-| ✅ | sends a freshly generated Idempotency-Key on a mutating request | 1 |
+| ✅ | never sends an Idempotency-Key on a GET request | 34 |
+| ✅ | sends a freshly generated Idempotency-Key on a mutating request | 2 |
 | ✅ | retries after a 401 with the SAME Idempotency-Key it used on the first attempt | 2 |
 | ✅ | does not retry a 401 on auth endpoints (skipAuthRetry) | 1 |
-| ✅ | throws ApiError with the parsed message on a non-2xx response | 2 |
+| ✅ | throws ApiError with the parsed message on a non-2xx response | 1 |
 | ✅ | tolerates a non-JSON error body (e.g. a missing-header 400 from Spring defaults) | 1 |
 
 ### boardCache — 4/4
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | returns null when nothing was ever cached | 2 |
+| ✅ | returns null when nothing was ever cached | 3 |
 | ✅ | round-trips a written cache | 1 |
-| ✅ | returns null instead of throwing on invalid JSON | 1 |
+| ✅ | returns null instead of throwing on invalid JSON | 0 |
 | ✅ | returns null on a well-formed but incomplete shape | 0 |
-
-### calendarEvents api module — 14/14
-
-| | Cenário | ms |
-|---|---|---|
-| ✅ | lists a month with the range as query params and no Idempotency-Key | 26 |
-| ✅ | creates with POST, the client-generated id in the body and an Idempotency-Key | 2 |
-| ✅ | updates with PATCH on the event path and an Idempotency-Key | 1 |
-| ✅ | deletes with DELETE and tolerates the empty 204 body | 1 |
-| ✅ | returns the parsed events on a successful list | 1 |
-| ✅ | resolves to an empty list when the month has no events | 1 |
-| ✅ | rejects with the server message when the event belongs to someone else (404) | 1 |
-| ✅ | rejects with an ApiError on a delete that hits 404 | 1 |
-| ✅ | rejects with a fallback message when the error body is not the ErrorResponse shape | 1 |
-| ✅ | rejects with a validation message when the server refuses the payload (400) | 1 |
-| ✅ | propagates a network failure instead of swallowing it | 1 |
-| ✅ | sends nulls for an event with no description and no declared end | 1 |
-| ✅ | keeps unicode in the title and description intact through the json body | 0 |
-| ✅ | gives each mutation its own Idempotency-Key so a real retry is the caller decision | 1 |
-
-### buildMeetingAlerts — 11/11
-
-| | Cenário | ms |
-|---|---|---|
-| ✅ | includes an event starting within the next 2 hours | 4 |
-| ✅ | excludes an event more than 2 hours away | 1 |
-| ✅ | excludes an event that already started | 0 |
-| ✅ | includes an event starting at exactly now | 0 |
-| ✅ | excludes an event starting exactly at the end of the 2h window | 0 |
-| ✅ | includes an event one minute inside the window edge | 0 |
-| ✅ | returns an empty list when there are no events at all | 0 |
-| ✅ | excludes an event already in progress, even if it ends inside the window | 0 |
-| ✅ | keeps every event inside the window, in the order received | 0 |
-| ✅ | describes the alert with the local start time and keeps the raw instant in `when` | 1 |
-| ✅ | preserves a unicode title verbatim | 0 |
-
-### buildGoalDeadlineAlerts — 14/14
-
-| | Cenário | ms |
-|---|---|---|
-| ✅ | includes an unfinished week goal within 2 days of the week ending | 1 |
-| ✅ | includes an unfinished month goal within 2 days of the month ending | 0 |
-| ✅ | excludes a goal far from its deadline | 0 |
-| ✅ | excludes a goal that is already done, even near the deadline | 0 |
-| ✅ | changes the alert id across periods so a dismissed overdue goal alerts again next period | 1 |
-| ✅ | changes the alert id across months for a month goal | 0 |
-| ✅ | keeps the same alert id on two different days of the same month | 0 |
-| ✅ | includes a goal exactly 48 hours from its deadline | 2 |
-| ✅ | includes a goal at the very last instant before its deadline | 1 |
-| ✅ | still includes a goal 48h59m out because the hour diff truncates | 0 |
-| ✅ | excludes a goal 49 hours out | 0 |
-| ✅ | returns an empty list when there are no goals at all | 0 |
-| ✅ | alerts a week goal on its own week deadline even when the month ends later | 1 |
-| ✅ | points `when` at the deadline instant, not at now | 0 |
-
-### buildGoalDeadlineAlerts under the pt-br locale — 2/2
-
-| | Cenário | ms |
-|---|---|---|
-| ✅ | names the weekday in Portuguese for a week goal | 0 |
-| ✅ | names the month in Portuguese for a month goal | 0 |
-
-### dismissed alert storage — 9/9
-
-| | Cenário | ms |
-|---|---|---|
-| ✅ | returns an empty set when nothing was ever dismissed | 1 |
-| ✅ | round-trips a dismissed set | 0 |
-| ✅ | round-trips an empty set as an empty set, never as null | 0 |
-| ✅ | returns an empty set for corrupt json instead of throwing | 0 |
-| ✅ | returns an empty set when the stored value is valid json but not an array | 0 |
-| ✅ | drops non-string entries from a mixed array | 0 |
-| ✅ | returns an empty set when localStorage itself throws on read | 0 |
-| ✅ | swallows a write failure (quota) instead of breaking the dismiss | 1 |
-| ✅ | overwrites the previous set rather than merging into it | 0 |
 
 ### XP rules (table shared with the backend) — 38/38
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | the table is not empty and has no duplicate ids | 2 |
+| ✅ | the table is not empty and has no duplicate ids | 1 |
 | ✅ | card-done-low | 1 |
 | ✅ | card-done-medium | 0 |
 | ✅ | card-done-high | 0 |
@@ -180,11 +105,86 @@ Gerado em 2026-09-15T17:33:11.241Z
 |---|---|---|
 | ✅ | returns the same state reference for an action with no effect | 0 |
 
+### buildMeetingAlerts — 11/11
+
+| | Cenário | ms |
+|---|---|---|
+| ✅ | includes an event starting within the next 2 hours | 4 |
+| ✅ | excludes an event more than 2 hours away | 1 |
+| ✅ | excludes an event that already started | 0 |
+| ✅ | includes an event starting at exactly now | 0 |
+| ✅ | excludes an event starting exactly at the end of the 2h window | 0 |
+| ✅ | includes an event one minute inside the window edge | 0 |
+| ✅ | returns an empty list when there are no events at all | 0 |
+| ✅ | excludes an event already in progress, even if it ends inside the window | 0 |
+| ✅ | keeps every event inside the window, in the order received | 0 |
+| ✅ | describes the alert with the local start time and keeps the raw instant in `when` | 1 |
+| ✅ | preserves a unicode title verbatim | 0 |
+
+### buildGoalDeadlineAlerts — 14/14
+
+| | Cenário | ms |
+|---|---|---|
+| ✅ | includes an unfinished week goal within 2 days of the week ending | 1 |
+| ✅ | includes an unfinished month goal within 2 days of the month ending | 0 |
+| ✅ | excludes a goal far from its deadline | 0 |
+| ✅ | excludes a goal that is already done, even near the deadline | 0 |
+| ✅ | changes the alert id across periods so a dismissed overdue goal alerts again next period | 1 |
+| ✅ | changes the alert id across months for a month goal | 0 |
+| ✅ | keeps the same alert id on two different days of the same month | 0 |
+| ✅ | includes a goal exactly 48 hours from its deadline | 2 |
+| ✅ | includes a goal at the very last instant before its deadline | 0 |
+| ✅ | still includes a goal 48h59m out because the hour diff truncates | 0 |
+| ✅ | excludes a goal 49 hours out | 0 |
+| ✅ | returns an empty list when there are no goals at all | 1 |
+| ✅ | alerts a week goal on its own week deadline even when the month ends later | 0 |
+| ✅ | points `when` at the deadline instant, not at now | 0 |
+
+### buildGoalDeadlineAlerts under the pt-br locale — 2/2
+
+| | Cenário | ms |
+|---|---|---|
+| ✅ | names the weekday in Portuguese for a week goal | 0 |
+| ✅ | names the month in Portuguese for a month goal | 0 |
+
+### dismissed alert storage — 9/9
+
+| | Cenário | ms |
+|---|---|---|
+| ✅ | returns an empty set when nothing was ever dismissed | 1 |
+| ✅ | round-trips a dismissed set | 0 |
+| ✅ | round-trips an empty set as an empty set, never as null | 0 |
+| ✅ | returns an empty set for corrupt json instead of throwing | 0 |
+| ✅ | returns an empty set when the stored value is valid json but not an array | 0 |
+| ✅ | drops non-string entries from a mixed array | 0 |
+| ✅ | returns an empty set when localStorage itself throws on read | 0 |
+| ✅ | swallows a write failure (quota) instead of breaking the dismiss | 1 |
+| ✅ | overwrites the previous set rather than merging into it | 0 |
+
+### calendarEvents api module — 14/14
+
+| | Cenário | ms |
+|---|---|---|
+| ✅ | lists a month with the range as query params and no Idempotency-Key | 28 |
+| ✅ | creates with POST, the client-generated id in the body and an Idempotency-Key | 2 |
+| ✅ | updates with PATCH on the event path and an Idempotency-Key | 1 |
+| ✅ | deletes with DELETE and tolerates the empty 204 body | 1 |
+| ✅ | returns the parsed events on a successful list | 1 |
+| ✅ | resolves to an empty list when the month has no events | 0 |
+| ✅ | rejects with the server message when the event belongs to someone else (404) | 1 |
+| ✅ | rejects with an ApiError on a delete that hits 404 | 1 |
+| ✅ | rejects with a fallback message when the error body is not the ErrorResponse shape | 1 |
+| ✅ | rejects with a validation message when the server refuses the payload (400) | 1 |
+| ✅ | propagates a network failure instead of swallowing it | 1 |
+| ✅ | sends nulls for an event with no description and no declared end | 0 |
+| ✅ | keeps unicode in the title and description intact through the json body | 0 |
+| ✅ | gives each mutation its own Idempotency-Key so a real retry is the caller decision | 1 |
+
 ### monthRange — 3/3
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | spans the first to the last instant of the local month | 4 |
+| ✅ | spans the first to the last instant of the local month | 5 |
 | ✅ | rolls over the year boundary (December to January) | 1 |
 | ✅ | accepts a native Date as well as a Dayjs | 0 |
 
@@ -192,13 +192,13 @@ Gerado em 2026-09-15T17:33:11.241Z
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | returns days ascending and events sorted by time inside a day | 12 |
-| ✅ | keeps an event that crosses midnight in the day it starts | 1 |
-| ✅ | returns an empty list for an empty month | 0 |
+| ✅ | returns days ascending and events sorted by time inside a day | 18 |
+| ✅ | keeps an event that crosses midnight in the day it starts | 2 |
+| ✅ | returns an empty list for an empty month | 1 |
 | ✅ | does not mutate the array it was given | 0 |
 | ✅ | keeps two events that start at the same instant, in the order received | 0 |
 | ✅ | splits the first and the last instant of a day into their own days | 0 |
-| ✅ | groups a whole busy month without losing an event | 5 |
+| ✅ | groups a whole busy month without losing an event | 7 |
 
 ### dayKeyOf — 2/2
 

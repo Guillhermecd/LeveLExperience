@@ -1,7 +1,8 @@
-import { Button, DatePicker, Form, Input, Radio } from 'antd';
+import { Button, Form, Input, Radio } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useEffect, useState } from 'react';
 import type { CalendarEvent, CalendarEventColor, CalendarEventInput } from '../../../types/calendar';
+import { DateTimeField } from './DateTimeField';
 import { eventColorOptions } from '../eventColors';
 import { useEventFormModalStyles } from './EventFormModal.styles';
 
@@ -81,7 +82,7 @@ export function EventFormModal({ event, defaultDay, onSubmit, onCancel }: Props)
           </Form.Item>
 
           <Form.Item name="startsAt" label="Início" rules={[{ required: true }]}>
-            <DatePicker showTime={{ format: 'HH:mm' }} format="DD/MM/YYYY HH:mm" style={{ width: '100%' }} />
+            <DateTimeField />
           </Form.Item>
 
           <Form.Item
@@ -98,7 +99,7 @@ export function EventFormModal({ event, defaultDay, onSubmit, onCancel }: Props)
               }),
             ]}
           >
-            <DatePicker showTime={{ format: 'HH:mm' }} format="DD/MM/YYYY HH:mm" style={{ width: '100%' }} />
+            <DateTimeField />
           </Form.Item>
 
           <Form.Item name="color" label="Cor">
