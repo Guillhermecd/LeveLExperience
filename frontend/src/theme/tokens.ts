@@ -110,15 +110,15 @@ export const color = {
   // has no glass/blur treatment) — alpha variants of the existing opaque
   // hues above, never a new palette.
   glass: {
-    panel: 'rgba(22, 24, 31, 0.55)',
-    focus: 'rgba(36, 29, 18, 0.55)',
-    level: 'rgba(28, 35, 20, 0.55)',
-    done: 'rgba(26, 32, 19, 0.55)',
-    goals: 'rgba(28, 23, 48, 0.55)',
-    border: 'rgba(255, 255, 255, 0.08)',
-    borderStrong: 'rgba(255, 255, 255, 0.14)',
-    blobLime: 'rgba(143, 209, 63, 0.16)',
-    blobAmber: 'rgba(242, 193, 78, 0.12)',
+    panel: 'rgba(22, 24, 31, 0.32)',
+    focus: 'rgba(36, 29, 18, 0.32)',
+    level: 'rgba(28, 35, 20, 0.32)',
+    done: 'rgba(26, 32, 19, 0.32)',
+    goals: 'rgba(28, 23, 48, 0.32)',
+    border: 'rgba(255, 255, 255, 0.14)',
+    borderStrong: 'rgba(255, 255, 255, 0.24)',
+    blobLime: 'rgba(143, 209, 63, 0.32)',
+    blobAmber: 'rgba(242, 193, 78, 0.26)',
   },
 } as const;
 
@@ -200,9 +200,9 @@ export const transition = {
 } as const;
 
 export const blur = {
-  panel: 'blur(16px)',
+  panel: 'blur(20px)',
   // saturate keeps colors from washing out under the blur
-  panelSaturate: 'blur(16px) saturate(140%)',
+  panelSaturate: 'blur(20px) saturate(160%)',
 } as const;
 
 export const zIndex = {

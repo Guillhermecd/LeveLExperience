@@ -31,13 +31,13 @@ const useStyles = createStyles(() => ({
   // something with color/contrast to actually blur.
   blobLime: {
     position: 'absolute',
-    top: -160,
-    right: -120,
-    width: 520,
-    height: 520,
+    top: -60,
+    right: -80,
+    width: 680,
+    height: 680,
     borderRadius: '50%',
     background: color.glass.blobLime,
-    filter: 'blur(80px)',
+    filter: 'blur(70px)',
     pointerEvents: 'none',
     // Negative so normal-flow content (unstyled, no z-index of its own)
     // always paints above these — no need to touch every other child's stacking.
@@ -45,13 +45,13 @@ const useStyles = createStyles(() => ({
   },
   blobAmber: {
     position: 'absolute',
-    top: -100,
-    left: -140,
-    width: 440,
-    height: 440,
+    top: -20,
+    left: -100,
+    width: 560,
+    height: 560,
     borderRadius: '50%',
     background: color.glass.blobAmber,
-    filter: 'blur(80px)',
+    filter: 'blur(70px)',
     pointerEvents: 'none',
     // Negative so normal-flow content (unstyled, no z-index of its own)
     // always paints above these — no need to touch every other child's stacking.
