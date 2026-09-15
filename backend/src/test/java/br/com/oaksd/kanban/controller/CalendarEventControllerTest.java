@@ -22,7 +22,6 @@ import br.com.oaksd.kanban.service.CalendarEventService;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -323,13 +322,11 @@ class CalendarEventControllerTest {
    * the loser's transaction blows up on the primary key. The handler must tell
    * the user something about their appointment.
    *
-   * <p>Disabled: GlobalExceptionHandler.handleConflict answers every
-   * DataIntegrityViolationException with "Este e-mail já está cadastrado.",
-   * so the agenda reports an e-mail problem. Pre-existing handler, not part of
-   * this diff — see the report's findings.
+   * <p>Fixed: GlobalExceptionHandler.handleConflict now reads the constraint
+   * name out of the root cause and only blames e-mail for the
+   * users_email_unique race (BUG-CAL-1).
    */
   @Test
-  @Disabled("BUG-CAL-1: DataIntegrityViolationException always maps to the e-mail conflict message")
   void create_losingTheDuplicateIdRace_doesNotBlameTheEmail() throws Exception {
     when(calendarEventService.create(any(), any()))
         .thenThrow(new DataIntegrityViolationException("duplicate key value violates "
