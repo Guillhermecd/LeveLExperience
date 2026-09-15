@@ -78,6 +78,9 @@ const useStyles = createStyles(() => ({
     flexWrap: 'wrap',
     paddingBottom: space.lg3,
     borderBottom: `1px solid ${color.border.header}`,
+    // Leaves room for the shell's fixed hamburger, which otherwise overlaps
+    // the greeting text at the page's top-left (same fix as CalendarPage).
+    paddingLeft: space.xl5,
   },
 }));
 
