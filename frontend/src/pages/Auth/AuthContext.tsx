@@ -1,7 +1,8 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import * as authApi from '../../api/modules/auth';
 import type { UserDto } from '../../api/modules/auth';
-import { getCurrentUser } from '../../api/session';
+import * as meApi from '../../api/modules/me';
+import { getCurrentUser, setCurrentUser } from '../../api/session';
 
 type AuthContextValue = {
   user: UserDto | null;
@@ -14,6 +15,28 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(() => getCurrentUser());
+
+  useEffect(() => {
+    // The cached user (from a previous login/register response) can be
+    // stale after a long session — refresh preferences like showGoals
+    // against the server once on boot (PLAN.md Fase 5).
+    if (!user) return;
+    let cancelled = false;
+    meApi
+      .getMe()
+      .then((fresh) => {
+        if (cancelled) return;
+        setCurrentUser(fresh);
+        setUser(fresh);
+      })
+      .catch(() => {
+        // Keep the cached user; the board itself will surface any auth failure.
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount, not on every user change
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
