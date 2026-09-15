@@ -2,6 +2,7 @@ import { message } from 'antd';
 import { useEffect, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 import { ApiError } from '../../../api/api';
+import { readBoardCache, writeBoardCache } from '../../../api/boardCache';
 import * as boardApi from '../../../api/modules/board';
 import * as cardsApi from '../../../api/modules/cards';
 import * as focusApi from '../../../api/modules/focus';
@@ -46,12 +47,15 @@ function errorMessage(error: unknown): string {
  * body always agree on identity.
  */
 export function useBoardState() {
-  const [cards, setCards] = useState<Card[]>([]);
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [history, setHistory] = useState<DayHistoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cache = readBoardCache();
+  const [cards, setCards] = useState<Card[]>(cache?.cards ?? []);
+  const [goals, setGoals] = useState<Goal[]>(cache?.goals ?? []);
+  const [history, setHistory] = useState<DayHistoryEntry[]>(cache?.history ?? []);
+  // A cache hit paints instantly and skips the spinner; GET /board still
+  // runs underneath and reconciles the state below once it lands.
+  const [loading, setLoading] = useState(cache === null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const xp = useXpDispatch(initialStats);
+  const xp = useXpDispatch(cache?.stats ?? initialStats);
   const focusSession = useFocusSession();
 
   useEffect(() => {
@@ -60,12 +64,16 @@ export function useBoardState() {
       try {
         const [board, stats] = await Promise.all([boardApi.getBoard(), statsApi.getStats()]);
         if (cancelled) return;
+        const ledgerStats = toLedgerStats(stats);
+        const dayHistory = toDayHistory(stats);
         setCards(board.cards);
         setGoals(board.goals);
-        xp.setStats(toLedgerStats(stats));
-        setHistory(toDayHistory(stats));
+        xp.setStats(ledgerStats);
+        setHistory(dayHistory);
+        writeBoardCache({ cards: board.cards, goals: board.goals, history: dayHistory, stats: ledgerStats });
       } catch (error) {
-        if (!cancelled) setLoadError(errorMessage(error));
+        // A stale cache is still a better boot than an error screen.
+        if (!cancelled && cache === null) setLoadError(errorMessage(error));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -78,10 +86,13 @@ export function useBoardState() {
 
   async function reloadBoard() {
     const [board, stats] = await Promise.all([boardApi.getBoard(), statsApi.getStats()]);
+    const ledgerStats = toLedgerStats(stats);
+    const dayHistory = toDayHistory(stats);
     setCards(board.cards);
     setGoals(board.goals);
-    xp.setStats(toLedgerStats(stats));
-    setHistory(toDayHistory(stats));
+    xp.setStats(ledgerStats);
+    setHistory(dayHistory);
+    writeBoardCache({ cards: board.cards, goals: board.goals, history: dayHistory, stats: ledgerStats });
   }
 
   /** Applies `apply` immediately, then runs `request` — reverting the snapshot on failure. */

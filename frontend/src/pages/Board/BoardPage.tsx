@@ -1,5 +1,6 @@
 import { createStyles } from 'antd-style';
 import { Spin } from 'antd';
+import { Link } from 'react-router-dom';
 import { color, font, space } from '../../theme/tokens';
 import { useAuth } from '../Auth/AuthContext';
 import { useBoardState } from './state/useBoardState';
@@ -27,8 +28,15 @@ const useStyles = createStyles(() => ({
   },
   headerRight: {
     display: 'flex',
+    alignItems: 'center',
     gap: space.sm3,
     flexWrap: 'wrap',
+  },
+  profileLink: {
+    color: color.text.faint,
+    fontSize: 13,
+    textDecoration: 'none',
+    '&:hover': { color: color.text.title },
   },
   headerRow: {
     display: 'flex',
@@ -42,13 +50,14 @@ const useStyles = createStyles(() => ({
 }));
 
 /** UI wired to useBoardState, which routes XP-affecting actions through the Fase 2 reducer. */
-export function BoardPage({ name, showGoals = true }: { name?: string; showGoals?: boolean }) {
+export function BoardPage({ name, showGoals }: { name?: string; showGoals?: boolean }) {
   const { styles } = useStyles();
   const { user } = useAuth();
   const state = useBoardState();
   const focusCard = state.cards.find((c) => c.id === state.focus?.cardId);
   const pickedCard = state.cards.find((c) => c.id === state.pick);
   const displayName = name ?? user?.name ?? undefined;
+  const shouldShowGoals = showGoals ?? user?.showGoals ?? true;
 
   if (state.loading) {
     return (
@@ -89,12 +98,15 @@ export function BoardPage({ name, showGoals = true }: { name?: string; showGoals
           <StatPanel variant="open" label="Em aberto" value={state.openCount} />
           <StatPanel variant="done" label="Tarefas feitas" value={state.doneCount} />
           <StatPanel variant="goals" label="Metas batidas" value={state.goalsDoneCount} />
+          <Link to="/perfil" className={styles.profileLink}>
+            Perfil
+          </Link>
         </div>
       </div>
 
       <BoardColumns state={state} />
 
-      {showGoals && <GoalsSection state={state} />}
+      {shouldShowGoals && <GoalsSection state={state} />}
 
       <ActivityChart history={state.history} />
 

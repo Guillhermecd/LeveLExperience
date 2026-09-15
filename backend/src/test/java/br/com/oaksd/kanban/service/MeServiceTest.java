@@ -6,6 +6,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import br.com.oaksd.kanban.dto.request.UpdatePreferencesRequest;
+import br.com.oaksd.kanban.dto.response.UserResponse;
 import br.com.oaksd.kanban.entity.User;
 import br.com.oaksd.kanban.exception.NotFoundException;
 import br.com.oaksd.kanban.mapper.FocusSessionMapper;
@@ -67,5 +71,41 @@ class MeServiceTest {
     when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> meService.export(userId)).isInstanceOf(NotFoundException.class);
+  }
+
+  @Test
+  void getProfile_onUnknownUser_throwsNotFound() {
+    UUID userId = UUID.randomUUID();
+    when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> meService.getProfile(userId)).isInstanceOf(NotFoundException.class);
+  }
+
+  @Test
+  void updatePreferences_setsNameAndShowGoals_thenSaves() {
+    UUID userId = UUID.randomUUID();
+    User user = new User();
+    user.setId(userId);
+    user.setName("Old name");
+    user.setShowGoals(true);
+    when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    when(userMapper.toResponse(user)).thenReturn(
+        new UserResponse(userId, "a@b.com", "New name", "America/Sao_Paulo", false, true));
+
+    UserResponse response = meService.updatePreferences(userId, new UpdatePreferencesRequest("New name", false));
+
+    assertThat(user.getName()).isEqualTo("New name");
+    assertThat(user.isShowGoals()).isFalse();
+    assertThat(response.name()).isEqualTo("New name");
+    verify(userRepository).save(user);
+  }
+
+  @Test
+  void updatePreferences_onUnknownUser_throwsNotFound() {
+    UUID userId = UUID.randomUUID();
+    when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> meService.updatePreferences(userId, new UpdatePreferencesRequest("x", true)))
+        .isInstanceOf(NotFoundException.class);
   }
 }

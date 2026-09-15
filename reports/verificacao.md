@@ -1,40 +1,49 @@
 # Relatório de verificação
 
-Gerado em 2026-09-14T20:24:54.362Z
+Gerado em 2026-09-15T14:26:32.467Z
 
-**Situação: APROVADO** — 100/100 aprovados
+**Situação: APROVADO** — 109/109 aprovados
 
 ---
 
 ## Frontend (Vitest)
 
-**61/61 aprovados** · 0.04s
+**65/65 aprovados** · 0.10s
 
 ### apiRequest — 6/6
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | never sends an Idempotency-Key on a GET request | 22 |
-| ✅ | sends a freshly generated Idempotency-Key on a mutating request | 1 |
-| ✅ | retries after a 401 with the SAME Idempotency-Key it used on the first attempt | 1 |
-| ✅ | does not retry a 401 on auth endpoints (skipAuthRetry) | 1 |
-| ✅ | throws ApiError with the parsed message on a non-2xx response | 1 |
+| ✅ | never sends an Idempotency-Key on a GET request | 52 |
+| ✅ | sends a freshly generated Idempotency-Key on a mutating request | 3 |
+| ✅ | retries after a 401 with the SAME Idempotency-Key it used on the first attempt | 4 |
+| ✅ | does not retry a 401 on auth endpoints (skipAuthRetry) | 3 |
+| ✅ | throws ApiError with the parsed message on a non-2xx response | 3 |
 | ✅ | tolerates a non-JSON error body (e.g. a missing-header 400 from Spring defaults) | 1 |
+
+### boardCache — 4/4
+
+| | Cenário | ms |
+|---|---|---|
+| ✅ | returns null when nothing was ever cached | 5 |
+| ✅ | round-trips a written cache | 2 |
+| ✅ | returns null instead of throwing on invalid JSON | 1 |
+| ✅ | returns null on a well-formed but incomplete shape | 1 |
 
 ### XP rules (table shared with the backend) — 38/38
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | the table is not empty and has no duplicate ids | 1 |
-| ✅ | card-done-low | 1 |
+| ✅ | the table is not empty and has no duplicate ids | 3 |
+| ✅ | card-done-low | 2 |
 | ✅ | card-done-medium | 0 |
-| ✅ | card-done-high | 0 |
-| ✅ | card-undone | 0 |
+| ✅ | card-done-high | 1 |
+| ✅ | card-undone | 1 |
 | ✅ | card-move-not-touching-done | 0 |
-| ✅ | card-reorder-same-column | 0 |
-| ✅ | card-done-redone | 0 |
-| ✅ | clean-day-awarded | 0 |
-| ✅ | clean-day-once-per-day | 0 |
+| ✅ | card-reorder-same-column | 1 |
+| ✅ | card-done-redone | 1 |
+| ✅ | clean-day-awarded | 1 |
+| ✅ | clean-day-once-per-day | 1 |
 | ✅ | clean-day-requires-empty-column | 0 |
 | ✅ | clean-day-requires-completion | 0 |
 | ✅ | clean-day-card-from-other-column | 0 |
@@ -84,11 +93,11 @@ Gerado em 2026-09-14T20:24:54.362Z
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | the displayed total is never negative | 0 |
-| ✅ | no event has a zero delta | 1 |
-| ✅ | the raw total is always the ledger sum plus the opening balance | 0 |
-| ✅ | applying zero actions never emits an event | 0 |
-| ✅ | the level is always derivable from the displayed total | 0 |
+| ✅ | the displayed total is never negative | 2 |
+| ✅ | no event has a zero delta | 4 |
+| ✅ | the raw total is always the ledger sum plus the opening balance | 1 |
+| ✅ | applying zero actions never emits an event | 1 |
+| ✅ | the level is always derivable from the displayed total | 1 |
 
 ### reducer is pure — 1/1
 
@@ -99,94 +108,99 @@ Gerado em 2026-09-14T20:24:54.362Z
 
 ## Backend (JUnit / Surefire)
 
-**39/39 aprovados** · 1.92s
+**44/44 aprovados** · 7.75s
 
 ### AuthControllerTest — 4/4
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | register_withValidBody_returns201 | 491 |
-| ✅ | forgotPassword_alwaysReturns204 | 14 |
-| ✅ | register_withBlankEmail_returns400 | 72 |
-| ✅ | login_withWrongCredentials_returns401 | 20 |
+| ✅ | register_withValidBody_returns201 | 1233 |
+| ✅ | forgotPassword_alwaysReturns204 | 32 |
+| ✅ | register_withBlankEmail_returns400 | 228 |
+| ✅ | login_withWrongCredentials_returns401 | 357 |
 
-### AuthServiceTest — 6/6
+### AuthServiceTest — 8/8
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | login_ratelimited_neverReachesTheDatabase | 573 |
-| ✅ | register_savesUserStatsAndSendsVerificationEmail | 16 |
-| ✅ | register_propagatesInviteRejectionWithoutSendingEmail | 4 |
-| ✅ | resetPassword_revokesEverySessionForTheUser | 5 |
-| ✅ | login_unknownEmail_throwsUnauthorizedWithoutLeakingWhichFieldFailed | 6 |
-| ✅ | login_wrongPassword_throwsUnauthorizedWithSameMessageAsUnknownEmail | 4 |
+| ✅ | login_ratelimited_neverReachesTheDatabase | 3823 |
+| ✅ | register_savesUserStatsAndSendsVerificationEmail | 72 |
+| ✅ | register_propagatesInviteRejectionWithoutSendingEmail | 15 |
+| ✅ | changePassword_wrongCurrentPassword_throwsUnauthorizedAndChangesNothing | 13 |
+| ✅ | changePassword_correctCurrentPassword_updatesHashAndRevokesEverySession | 12 |
+| ✅ | resetPassword_revokesEverySessionForTheUser | 10 |
+| ✅ | login_unknownEmail_throwsUnauthorizedWithoutLeakingWhichFieldFailed | 10 |
+| ✅ | login_wrongPassword_throwsUnauthorizedWithSameMessageAsUnknownEmail | 14 |
 
 ### BoardServiceTest — 2/2
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | getBoard_withNoCards_skipsTheSubtaskQueryEntirely | 232 |
-| ✅ | getBoard_withMultipleCards_queriesSubtasksExactlyOnce | 4 |
+| ✅ | getBoard_withNoCards_skipsTheSubtaskQueryEntirely | 902 |
+| ✅ | getBoard_withMultipleCards_queriesSubtasksExactlyOnce | 16 |
 
 ### CardServiceTest — 10/10
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | move_withAfterIdAsTheLastCard_appendsAfterIt | 78 |
-| ✅ | create_withUnseenId_appendsAfterTheCurrentColumnMax | 13 |
-| ✅ | delete_withAnotherUsersCard_throwsNotFoundNeverConflict | 5 |
-| ✅ | move_withNoAfterId_insertsBeforeTheCurrentFirstCard | 4 |
-| ✅ | move_withCollapsedGap_rebalancesTheColumnBeforeInserting | 4 |
-| ✅ | move_withinTheSameColumn_stillSettlesNoXpForANonDoneTransition | 6 |
-| ✅ | move_withUnknownAfterId_throwsNotFound | 6 |
-| ✅ | create_withIdOwnedByAnotherUser_throwsConflict | 6 |
-| ✅ | move_withAfterIdBetweenTwoCards_landsOnTheMidpoint | 3 |
-| ✅ | create_withIdAlreadyOwnedByCaller_isIdempotentAndDoesNotSaveAgain | 5 |
+| ✅ | move_withAfterIdAsTheLastCard_appendsAfterIt | 109 |
+| ✅ | create_withUnseenId_appendsAfterTheCurrentColumnMax | 18 |
+| ✅ | delete_withAnotherUsersCard_throwsNotFoundNeverConflict | 14 |
+| ✅ | move_withNoAfterId_insertsBeforeTheCurrentFirstCard | 12 |
+| ✅ | move_withCollapsedGap_rebalancesTheColumnBeforeInserting | 13 |
+| ✅ | move_withinTheSameColumn_stillSettlesNoXpForANonDoneTransition | 16 |
+| ✅ | move_withUnknownAfterId_throwsNotFound | 14 |
+| ✅ | create_withIdOwnedByAnotherUser_throwsConflict | 12 |
+| ✅ | move_withAfterIdBetweenTwoCards_landsOnTheMidpoint | 7 |
+| ✅ | create_withIdAlreadyOwnedByCaller_isIdempotentAndDoesNotSaveAgain | 10 |
 
 ### FocusServiceTest — 5/5
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | start_withAnAlreadyActiveSession_throwsConflict | 106 |
-| ✅ | finish_completed_settlesFocusXpFromServerElapsedTime | 8 |
-| ✅ | start_withAnotherUsersCard_throwsNotFound | 4 |
-| ✅ | finish_abandoned_settlesNoXp | 3 |
-| ✅ | finish_onAlreadyTerminalSession_throwsConflict | 4 |
+| ✅ | start_withAnAlreadyActiveSession_throwsConflict | 196 |
+| ✅ | finish_completed_settlesFocusXpFromServerElapsedTime | 25 |
+| ✅ | start_withAnotherUsersCard_throwsNotFound | 14 |
+| ✅ | finish_abandoned_settlesNoXp | 15 |
+| ✅ | finish_onAlreadyTerminalSession_throwsConflict | 13 |
 
 ### GoalServiceTest — 4/4
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | delete_withAnotherUsersGoal_throwsNotFound | 7 |
-| ✅ | create_withUnseenId_appendsAfterTheCurrentScopeMax | 5 |
-| ✅ | create_withIdOwnedByAnotherUser_throwsConflict | 4 |
-| ✅ | create_withIdAlreadyOwnedByCaller_isIdempotentAndDoesNotSaveAgain | 4 |
+| ✅ | delete_withAnotherUsersGoal_throwsNotFound | 10 |
+| ✅ | create_withUnseenId_appendsAfterTheCurrentScopeMax | 29 |
+| ✅ | create_withIdOwnedByAnotherUser_throwsConflict | 26 |
+| ✅ | create_withIdAlreadyOwnedByCaller_isIdempotentAndDoesNotSaveAgain | 24 |
 
-### MeServiceTest — 3/3
+### MeServiceTest — 6/6
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | export_onUnknownUser_throwsNotFound | 133 |
-| ✅ | deleteAccount_removesTheUserRow_cascadeHandlesTheRest | 1 |
-| ✅ | deleteAccount_onUnknownUser_throwsNotFound | 3 |
+| ✅ | updatePreferences_setsNameAndShowGoals_thenSaves | 313 |
+| ✅ | getProfile_onUnknownUser_throwsNotFound | 5 |
+| ✅ | export_onUnknownUser_throwsNotFound | 8 |
+| ✅ | deleteAccount_removesTheUserRow_cascadeHandlesTheRest | 6 |
+| ✅ | updatePreferences_onUnknownUser_throwsNotFound | 5 |
+| ✅ | deleteAccount_onUnknownUser_throwsNotFound | 6 |
 
 ### StatsServiceTest — 2/2
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | getStats_withStaleLastXpDay_showsStreakZero | 16 |
-| ✅ | getStats_derivesLevelAndTodayFromTheLedger_neverFromStoredTotals | 23 |
+| ✅ | getStats_withStaleLastXpDay_showsStreakZero | 19 |
+| ✅ | getStats_derivesLevelAndTodayFromTheLedger_neverFromStoredTotals | 22 |
 
 ### SubtaskServiceTest — 2/2
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | update_onNonExistentSubtask_throwsNotFound | 4 |
-| ✅ | update_onSubtaskOfAnotherUsersCard_throwsNotFound | 6 |
+| ✅ | update_onNonExistentSubtask_throwsNotFound | 11 |
+| ✅ | update_onSubtaskOfAnotherUsersCard_throwsNotFound | 8 |
 
 ### XpRulesTableTest — 1/1
 
 | | Cenário | ms |
 |---|---|---|
-| ✅ | everyScenarioMatchesTheSharedTable | 20 |
+| ✅ | everyScenarioMatchesTheSharedTable | 31 |
 

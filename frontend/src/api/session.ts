@@ -1,8 +1,8 @@
 import type { UserDto } from './modules/auth';
 
-// There is no GET /api/me/profile yet (that's Fase 5's /me preferences) —
-// the only source of the current user is the payload login/register
-// already return, so it's cached here instead of re-fetched.
+// Seeded from the login/register/refresh payload and kept in sync by
+// AuthContext after a GET/PATCH /api/me — cached here so a page reload
+// doesn't need a round trip just to know the greeting name.
 const USER_KEY = 'kanban.user';
 
 let currentUser: UserDto | null = readUser();
