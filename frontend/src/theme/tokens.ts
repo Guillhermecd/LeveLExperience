@@ -214,7 +214,8 @@ export const zIndex = {
   // dialog that is supposed to be blocking.
   navTrigger: 900,
   modal: 1000,
-  // Above the modal layer on purpose: the drawer is the app's outermost
-  // navigation surface, so it has to win over anything a page opened.
+  // Above the modal layer, and above antd's own popup range (Popconfirm and
+  // friends sit around 1030-1060): the drawer is the outermost surface, so
+  // nothing a page painted can show through it.
   drawer: 1100,
 } as const;
