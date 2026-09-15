@@ -110,6 +110,9 @@ export const color = {
   // has no glass/blur treatment) — alpha variants of the existing opaque
   // hues above, never a new palette.
   glass: {
+    // Scrim behind a modal box — same value FocusModal has used inline since
+    // the handoff, hoisted here so a second modal cannot drift from it.
+    overlay: 'rgba(8,9,13,.74)',
     panel: 'rgba(22, 24, 31, 0.32)',
     focus: 'rgba(36, 29, 18, 0.32)',
     level: 'rgba(28, 35, 20, 0.32)',
@@ -206,5 +209,13 @@ export const blur = {
 } as const;
 
 export const zIndex = {
+  // The hamburger sits above the page but below the focus modal's overlay:
+  // an open modal must cover it, or the trigger stays clickable behind a
+  // dialog that is supposed to be blocking.
+  navTrigger: 900,
   modal: 1000,
+  // Above the modal layer, and above antd's own popup range (Popconfirm and
+  // friends sit around 1030-1060): the drawer is the outermost surface, so
+  // nothing a page painted can show through it.
+  drawer: 1100,
 } as const;
