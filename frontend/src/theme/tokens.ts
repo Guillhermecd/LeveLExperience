@@ -206,5 +206,12 @@ export const blur = {
 } as const;
 
 export const zIndex = {
+  // The hamburger sits above the page but below the focus modal's overlay:
+  // an open modal must cover it, or the trigger stays clickable behind a
+  // dialog that is supposed to be blocking.
+  navTrigger: 900,
   modal: 1000,
+  // Above the modal layer on purpose: the drawer is the app's outermost
+  // navigation surface, so it has to win over anything a page opened.
+  drawer: 1100,
 } as const;
