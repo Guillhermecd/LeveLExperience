@@ -1,12 +1,17 @@
 package br.com.oaksd.kanban.controller;
 
+import br.com.oaksd.kanban.dto.request.UpdatePreferencesRequest;
 import br.com.oaksd.kanban.dto.response.MeExportResponse;
+import br.com.oaksd.kanban.dto.response.UserResponse;
 import br.com.oaksd.kanban.security.CurrentUser;
 import br.com.oaksd.kanban.service.MeService;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +24,16 @@ public class MeController {
 
   public MeController(MeService meService) {
     this.meService = meService;
+  }
+
+  @GetMapping
+  public UserResponse getProfile(@CurrentUser UUID userId) {
+    return meService.getProfile(userId);
+  }
+
+  @PatchMapping
+  public UserResponse updatePreferences(@CurrentUser UUID userId, @Valid @RequestBody UpdatePreferencesRequest request) {
+    return meService.updatePreferences(userId, request);
   }
 
   @GetMapping("/export")

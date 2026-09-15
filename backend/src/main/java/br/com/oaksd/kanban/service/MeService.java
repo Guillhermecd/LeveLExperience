@@ -1,7 +1,9 @@
 package br.com.oaksd.kanban.service;
 
+import br.com.oaksd.kanban.dto.request.UpdatePreferencesRequest;
 import br.com.oaksd.kanban.dto.response.BoardResponse;
 import br.com.oaksd.kanban.dto.response.MeExportResponse;
+import br.com.oaksd.kanban.dto.response.UserResponse;
 import br.com.oaksd.kanban.dto.response.XpEventResponse;
 import br.com.oaksd.kanban.entity.User;
 import br.com.oaksd.kanban.exception.NotFoundException;
@@ -53,6 +55,23 @@ public class MeService {
 
     return new MeExportResponse(userMapper.toResponse(user), board.cards(), board.goals(), xpEvents, focusSessions,
         statsService.getStats(userId));
+  }
+
+  @Transactional(readOnly = true)
+  public UserResponse getProfile(UUID userId) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("Usuário não encontrado."));
+    return userMapper.toResponse(user);
+  }
+
+  @Transactional
+  public UserResponse updatePreferences(UUID userId, UpdatePreferencesRequest request) {
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new NotFoundException("Usuário não encontrado."));
+    user.setName(request.name());
+    user.setShowGoals(request.showGoals());
+    userRepository.save(user);
+    return userMapper.toResponse(user);
   }
 
   // users(id) ON DELETE CASCADE covers cards, goals, xp_events,
