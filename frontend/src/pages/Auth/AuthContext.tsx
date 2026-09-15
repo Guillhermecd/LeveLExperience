@@ -1,13 +1,15 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import * as authApi from '../../api/modules/auth';
 import type { UserDto } from '../../api/modules/auth';
-import { getCurrentUser } from '../../api/session';
+import * as meApi from '../../api/modules/me';
+import { getCurrentUser, setCurrentUser } from '../../api/session';
 
 type AuthContextValue = {
   user: UserDto | null;
   login: (input: { email: string; password: string }) => Promise<void>;
   register: (input: { inviteCode: string; email: string; password: string; name?: string }) => Promise<void>;
   logout: () => Promise<void>;
+  updatePreferences: (input: { name: string | null; showGoals: boolean }) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -23,6 +25,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout: async () => {
         await authApi.logout();
         setUser(null);
+      },
+      updatePreferences: async (input) => {
+        const updated = await meApi.updatePreferences(input);
+        setCurrentUser(updated);
+        setUser(updated);
       },
     }),
     [user],
