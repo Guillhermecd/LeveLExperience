@@ -2,6 +2,7 @@ import { MenuOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { useState, type ReactNode } from 'react';
 import { useAppShellStyles } from './AppShell.styles';
+import { NotificationBell } from './NotificationBell';
 import { SidebarNav } from './SidebarNav';
 
 /**
@@ -22,6 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         onClick={() => setOpen(true)}
       />
       <SidebarNav open={open} onClose={() => setOpen(false)} />
+      <NotificationBell />
       {children}
     </>
   );
