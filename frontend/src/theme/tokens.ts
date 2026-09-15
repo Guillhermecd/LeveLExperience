@@ -110,6 +110,9 @@ export const color = {
   // has no glass/blur treatment) — alpha variants of the existing opaque
   // hues above, never a new palette.
   glass: {
+    // Scrim behind a modal box — same value FocusModal has used inline since
+    // the handoff, hoisted here so a second modal cannot drift from it.
+    overlay: 'rgba(8,9,13,.74)',
     panel: 'rgba(22, 24, 31, 0.32)',
     focus: 'rgba(36, 29, 18, 0.32)',
     level: 'rgba(28, 35, 20, 0.32)',

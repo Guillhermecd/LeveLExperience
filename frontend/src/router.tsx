@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
 import { BoardPage } from './pages/Board';
+import { CalendarPage } from './pages/Calendar';
 import { LoginPage } from './pages/Auth/LoginPage';
 import { RegisterPage } from './pages/Auth/RegisterPage';
 import { RequireAuth } from './pages/Auth/RequireAuth';
@@ -13,6 +14,16 @@ export const router = createBrowserRouter([
       <RequireAuth>
         <AppShell>
           <BoardPage />
+        </AppShell>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/calendario',
+    element: (
+      <RequireAuth>
+        <AppShell>
+          <CalendarPage />
         </AppShell>
       </RequireAuth>
     ),
