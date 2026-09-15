@@ -9,6 +9,10 @@ export function updatePreferences(input: { name: string | null; showGoals: boole
   return apiRequest('/api/me', { method: 'PATCH', body: input });
 }
 
+export function changePassword(input: { currentPassword: string; newPassword: string }): Promise<void> {
+  return apiRequest('/api/me/password', { method: 'PATCH', body: input });
+}
+
 export function exportMe(): Promise<unknown> {
   return apiRequest('/api/me/export');
 }
