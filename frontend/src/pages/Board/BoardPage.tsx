@@ -42,13 +42,14 @@ const useStyles = createStyles(() => ({
 }));
 
 /** UI wired to useBoardState, which routes XP-affecting actions through the Fase 2 reducer. */
-export function BoardPage({ name, showGoals = true }: { name?: string; showGoals?: boolean }) {
+export function BoardPage({ name, showGoals }: { name?: string; showGoals?: boolean }) {
   const { styles } = useStyles();
   const { user } = useAuth();
   const state = useBoardState();
   const focusCard = state.cards.find((c) => c.id === state.focus?.cardId);
   const pickedCard = state.cards.find((c) => c.id === state.pick);
   const displayName = name ?? user?.name ?? undefined;
+  const shouldShowGoals = showGoals ?? user?.showGoals ?? true;
 
   if (state.loading) {
     return (
@@ -94,7 +95,7 @@ export function BoardPage({ name, showGoals = true }: { name?: string; showGoals
 
       <BoardColumns state={state} />
 
-      {showGoals && <GoalsSection state={state} />}
+      {shouldShowGoals && <GoalsSection state={state} />}
 
       <ActivityChart history={state.history} />
 
